@@ -66,18 +66,6 @@ public class RecipeServiceTest {
                 .withName("Mohito")
                 .withIngredientAmount(ingredient, 10.0)
                 .createRecipe();
-
-        ingredientSet = new HashSet<>();
-        if (ingredientRepository.findById(1).isPresent()
-                && ingredientRepository.findById(2).isPresent()
-                && ingredientRepository.findById(3).isPresent()) {
-
-            ingredientSet.add(ingredientRepository.findById(1).get());
-            ingredientSet.add(ingredientRepository.findById(2).get());
-            ingredientSet.add(ingredientRepository.findById(3).get());
-        } else {
-            throw new NullPointerException("No ingredients with choosen id");
-        }
     }
 
 

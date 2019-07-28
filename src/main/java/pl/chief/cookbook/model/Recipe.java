@@ -29,14 +29,14 @@ public class Recipe {
     private RecipeCategory recipeCategory;
     @JsonIgnoreProperties(value = "Recipes containing")
     @JsonProperty("Ingredients in Recipe")
-
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "ingr_id", referencedColumnName = "id"))
     private Set<Ingredient> ingredients;
     @ElementCollection
     @MapKeyColumn(name = "ingr_id")
     @Column(name = "amount")
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "ingr_id", referencedColumnName = "id"))
+    @JoinTable(name = "recipe_ingredients")
     @JsonProperty("Ingredients - Amounts")
     private Map<Integer, Double> ingredientsAmount;
     private int calories;
@@ -46,7 +46,7 @@ public class Recipe {
         this.ingredientsAmount = new HashMap<>();
     }
 
-   /* public Recipe(String name, String description, RecipeCategory recipeCategory, int calories) {
+    public Recipe(String name, String description, RecipeCategory recipeCategory, int calories) {
         this();
         this.name = name;
         this.description = description;
@@ -62,5 +62,5 @@ public class Recipe {
     public Recipe(String name, String description, RecipeCategory recipeCategory, int calories, Map<Integer, Double> ingredientsAmount, Set<Ingredient> ingredients) {
         this(name, description, recipeCategory, calories, ingredientsAmount);
         this.ingredients = ingredients;
-    }*/
+    }
 }

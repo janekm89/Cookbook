@@ -26,7 +26,7 @@ public class Ingredient {
     private MeasurementUnit unit;
     @JsonIgnoreProperties({"Ingredients in Recipe", "Ingredients - Amounts"})
     @JsonProperty("Recipes containing")
-    @ManyToMany(mappedBy = "ingredientsAmount", fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "ingredients", fetch = FetchType.LAZY)
     private List<Recipe> recipes;
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "category")
