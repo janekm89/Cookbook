@@ -18,6 +18,7 @@ public class IngredientService {
     @Autowired
     IngredientRepository ingredientRepository;
 
+
     public boolean addIngredient(Ingredient ingredient) {
         if (ingredientRepository.findByName(ingredient.getName()).isPresent()) {
             return false;
