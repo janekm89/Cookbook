@@ -24,4 +24,8 @@ public class PropertiesUtils {
         Object object = System.getProperties().get(key);
         return (String) object;
     }
+
+    public Object getPropertyObject(String key){
+        return System.getProperties().get(key);
+    }
 }

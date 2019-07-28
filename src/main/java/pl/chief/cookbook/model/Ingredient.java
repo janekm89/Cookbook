@@ -15,7 +15,6 @@ import java.util.List;
 @Entity
 @Setter
 @Getter
-@Builder
 public class Ingredient {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

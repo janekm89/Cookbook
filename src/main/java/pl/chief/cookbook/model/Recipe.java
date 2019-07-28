@@ -16,7 +16,6 @@ import java.util.Set;
 @Entity
 @Setter
 @Getter
-@Builder
 public class Recipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
