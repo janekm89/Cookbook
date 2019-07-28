@@ -1,54 +1,58 @@
 package pl.chief.cookbook.gui;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.AppLayoutMenu;
-import com.vaadin.flow.component.applayout.AppLayoutMenuItem;
-import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.listbox.ListBox;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
+import org.springframework.beans.factory.annotation.Autowired;
+import pl.chief.cookbook.model.Ingredient;
+import pl.chief.cookbook.model.Recipe;
+import pl.chief.cookbook.service.IngredientService;
+import pl.chief.cookbook.service.RecipeService;
 import pl.chief.cookbook.util.AppProperties;
 
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+
 @Route("index")
-public class MainLayout extends VerticalLayout {
+public class MainLayout extends HorizontalLayout {
+
     private static final String LOGO_PNG = AppProperties.logo;
 
-    MainLayout() {
-        /*Image img = new Image(
-                new StreamResource(LOGO_PNG,
-                        () -> MainLayout.class.getResourceAsStream("\\src\\main\\resources\\img\\logo.png")),
-                "Cookbook Logo"
-        );*/
+    @Autowired
+    MainLayout(RecipeService recipeService, IngredientService ingredientService) {
 
-        Image img = new Image("https://i.kinja-img.com/gawker-media/image/upload/s--eZrGJpKG--/c_scale,f_auto,fl_progressive,q_80,w_800/mfsptkstqthdh8xrdydn.jpg", "erro");
-        img.setHeight("44px");
+        VerticalLayout sidenav = new VerticalLayout();
+        ListBox<String> listBox = new ListBox<>();
+        listBox.setItems(ingredientService
+                .findAllIngredients()
+                .stream()
+                .map(ingredient -> ingredient.getName())
+                .collect(Collectors.toList()));
+        Button button = new Button("find");
+        sidenav.add(listBox, button);
 
+        VerticalLayout content = new VerticalLayout();
+        Grid<Recipe> grid = new Grid<>(Recipe.class);
+        grid.setItems(recipeService.findAllRecipes());
+        //grid.setColumns("name");
+        content.add(grid);
 
-        AppLayout appLayout = new AppLayout();
-        AppLayoutMenu menu = appLayout.createMenu();
-
-        appLayout.setBranding(img);
-
-
-        menu.addMenuItems(new AppLayoutMenuItem("Page 1", "page1"),
-                new AppLayoutMenuItem("Page 2", "page2"),
-                new AppLayoutMenuItem("Page 3", "page3"),
-                new AppLayoutMenuItem("Page 4", "page4"),
-                new AppLayoutMenuItem(VaadinIcon.USER.create(), "My Profile", "profile"),
-                new AppLayoutMenuItem(VaadinIcon.TRENDING_UP.create(), "Trending Topics", "trends")
-        );
-
-
-        Component content = new Span(new H3("Page title"),
-                new Span("Page content"));
-        appLayout.setContent(content);
-
-        add(appLayout);
-
+        add(sidenav, grid);
     }
 
+
+    /*    Image img = new Image("img/logo.png", "logo");
+    // img.setHeight("100px");
+
+    // TOPNAV
+    AppLayout appLayout = new AppLayout();
+        appLayout.setBranding(img);
+    AppLayoutMenu menu = appLayout.createMenu();
+        menu.addMenuItems(
+                new AppLayoutMenuItem(VaadinIcon.CROSS_CUTLERY.create(), "Find by ingredient", "find-by-ingredient"),
+            new AppLayoutMenuItem(VaadinIcon.SITEMAP.create(), "Find by category", "find-by-category")
+            );*/
 }
