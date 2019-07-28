@@ -29,14 +29,14 @@ public class Recipe {
     private RecipeCategory recipeCategory;
     @JsonIgnoreProperties(value = "Recipes containing")
     @JsonProperty("Ingredients in Recipe")
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "ingr_id", referencedColumnName = "id"))
+
     private Set<Ingredient> ingredients;
     @ElementCollection
     @MapKeyColumn(name = "ingr_id")
     @Column(name = "amount")
-    @JoinTable(name = "recipe_ingredients")
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "ingr_id", referencedColumnName = "id"))
     @JsonProperty("Ingredients - Amounts")
     private Map<Integer, Double> ingredientsAmount;
     private int calories;

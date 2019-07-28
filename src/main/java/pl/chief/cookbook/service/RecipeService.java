@@ -27,36 +27,36 @@ public class RecipeService {
     }
 
 
-    public List<Recipe> getAllRecipes() {
+    public List<Recipe> findAllRecipes() {
         return new ArrayList<>(recipeRepository.findAll());
     }
 
-    public Recipe getRecipeByName(String name) {
+    public Recipe findRecipeByName(String name) {
         return recipeRepository.findByName(name).orElseThrow(RecipeNotFoundException::new);
     }
 
-    public Recipe getRecipeById(String id) {
+    public Recipe findRecipeById(String id) {
         int recipeId = parseIfIsNumber(id);
         return recipeRepository.findById(recipeId).orElseThrow(RecipeNotFoundException::new);
     }
 
-    public List<Recipe> getRecipesWithCaloriesIn(String caloriesMin, String caloriesMax) {
+    public List<Recipe> findRecipesWithCaloriesIn(String caloriesMin, String caloriesMax) {
         int calMin = parseIfIsNumber(caloriesMin);
         int calMax = parseIfIsNumber(caloriesMax);
         return new ArrayList<>(recipeRepository.findByCaloriesBetween(calMin, calMax));
     }
 
-    public List<Recipe> getRecipesWithIngredientsDistinct(Set<Ingredient> ingredients) {
+    public List<Recipe> findRecipesWithIngredientsDistinct(Set<Ingredient> ingredients) {
         Set<Ingredient> ingredientSet = new HashSet<>(ingredients);
         return new ArrayList<>(recipeRepository.findDistinctByIngredientsIn(ingredientSet));
     }
 
-    public List<Recipe> getRecipesWithIngredients(Collection<Ingredient> ingredients) {
+    public List<Recipe> findRecipesWithIngredients(Collection<Ingredient> ingredients, Long numOfIngredients) {
         Collection<Ingredient> ingredientCollection = new ArrayList<>(ingredients);
-        return new ArrayList<>(recipeRepository.findByIngredients(ingredientCollection, ((long) ingredients.size())));
+        return new ArrayList<>(recipeRepository.findByIngredients(ingredientCollection, numOfIngredients));
     }
 
-    public List<Recipe> getRecipesContainingAllIngredients(Ingredient ingredient) {
+    public List<Recipe> findAllRecipesContainingIngredient(Ingredient ingredient) {
         return recipeRepository.findByIngredientsContaining(ingredient);
     }
 
