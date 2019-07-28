@@ -10,7 +10,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class RecipeExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = RecipeNotFoundException.class)
-    public ResponseEntity handleRecipeNotFoundException(){
+    public ResponseEntity handleRecipeNotFoundException() {
         return ResponseEntity.notFound().build();
 
     }

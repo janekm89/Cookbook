@@ -101,12 +101,16 @@ public class RecipeBuilder {
     }
 
     public RecipeBuilder withIngredientAmount(Ingredient ingredient, Double amount) {
-        recipe.getIngredientsAmount().put(ingredientRepository.findByName(ingredient.getName()).get().getId(), amount);
+        recipe.getIngredientsAmount().put(ingredient.getId(), amount);
         return this;
     }
 
     public RecipeBuilder withIngredientAmount(String ingredientName, Double amount) {
         recipe.getIngredientsAmount().put(ingredientRepository.findByName(ingredientName).get().getId(), amount);
+        return this;
+    }
+    public RecipeBuilder withIngredient(Ingredient ingredient){
+        recipe.getIngredients().add(ingredient);
         return this;
     }
 

@@ -46,7 +46,7 @@ public class Recipe {
         this.ingredientsAmount = new HashMap<>();
     }
 
-    public Recipe(String name, String description, RecipeCategory recipeCategory, int calories) {
+   /* public Recipe(String name, String description, RecipeCategory recipeCategory, int calories) {
         this();
         this.name = name;
         this.description = description;
@@ -62,5 +62,5 @@ public class Recipe {
     public Recipe(String name, String description, RecipeCategory recipeCategory, int calories, Map<Integer, Double> ingredientsAmount, Set<Ingredient> ingredients) {
         this(name, description, recipeCategory, calories, ingredientsAmount);
         this.ingredients = ingredients;
-    }
+    }*/
 }
