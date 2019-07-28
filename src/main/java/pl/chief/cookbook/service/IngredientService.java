@@ -35,7 +35,26 @@ public class IngredientService {
         return ingredientRepository.findByName(name).orElseThrow(IngredientNotFoundException::new);
     }
 
-    public List<Ingredient> findIngredientsByCategory(IngredientCategory ingredientCategory){
+    public List<Ingredient> findIngredientsByCategory(IngredientCategory ingredientCategory) {
         return ingredientRepository.findByIngredientCategory(ingredientCategory);
     }
- }
+
+    public boolean updateIngredient(Ingredient ingredient, int ingredientId) {
+        Ingredient existingIngredient = ingredientRepository.findById(ingredientId).orElseThrow(IngredientNotFoundException::new);
+        existingIngredient.setName(ingredient.getName());
+        existingIngredient.setUnit(ingredient.getUnit());
+        existingIngredient.setIngredientCategory(ingredient.getIngredientCategory());
+        ingredientRepository.save(existingIngredient);
+        return true;
+    }
+
+    public boolean deleteIngredient(Ingredient ingredient) {
+        ingredientRepository.delete(ingredient);
+        return true;
+    }
+
+    public boolean deleteIngredientById(int ingredientId) {
+        Ingredient existingIngredient = ingredientRepository.findById(ingredientId).orElseThrow(IngredientNotFoundException::new);
+        return deleteIngredient(existingIngredient);
+    }
+}
