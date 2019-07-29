@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 import pl.chief.cookbook.builder.IngredientBuilder;
 import pl.chief.cookbook.builder.RecipeBuilder;
 import pl.chief.cookbook.features.IngredientCategory;
@@ -28,8 +29,10 @@ import java.util.List;
 @SpringBootTest
 public class RecipeServiceTest {
     private Ingredient ingredient;
+    private Ingredient ingredient2;
     private Recipe recipe;
     private Recipe recipe2;
+    private Recipe recipe3;
     private HashSet<Ingredient> ingredientSet;
 
     @Autowired
@@ -50,6 +53,8 @@ public class RecipeServiceTest {
                 .withUnit(MeasurementUnit.PCS)
                 .createIngredient();
 
+        ingredient2 = ingredientRepository.getOne(1);
+
         recipe = new RecipeBuilder()
                 .withCategory(RecipeCategory.PIZZA)
                 .withCalories(400)
@@ -66,6 +71,14 @@ public class RecipeServiceTest {
                 .withName("Mohito")
                 .withIngredientAmount(ingredient, 10.0)
                 .createRecipe();
+
+        recipe3 = new RecipeBuilder()
+                .withCategory(RecipeCategory.DRINKS)
+                .withCalories(200)
+                .withDescription("The strongest of drinks")
+                .withName("Russian drink")
+                .withIngredientAmount(ingredient2, 10.0)
+                .createRecipe();
     }
 
 
@@ -73,22 +86,22 @@ public class RecipeServiceTest {
     public void shouldAddRecipe() {
         recipeService.addRecipe(recipe);
         recipeService.addRecipe(recipe2);
+        recipeService.addRecipe(recipe3);
     }
 
 
     @Test
-    public void shouldGetRecipeByName() {
-        assertEquals("Margeritta", recipe.getName());
-        System.out.println(recipe.getId());
+    public void shouldFindRecipeByName() {
+        recipeRepository.findByName("Margeritta").ifPresent(recipe -> assertEquals("Margeritta", recipe.getName()));
     }
 
     @Test
-    public void shouldGetRecipeById() {
+    public void shouldFindRecipeById() {
         recipeRepository.findByName("Margeritta").ifPresent(recipe -> assertEquals(1, recipe.getId()));
     }
 
     @Test
-    public void shouldGetRecipesWithCaloriesIn() {
+    public void shouldFindRecipesWithCaloriesIn() {
         int caloriesMin = 900;
         int caloriesMax = 1500;
         List<Recipe> recipeList = recipeRepository.findByCaloriesBetween(caloriesMin, caloriesMax);
@@ -102,16 +115,13 @@ public class RecipeServiceTest {
         assertTrue(recipeList.stream().allMatch(r -> r.getRecipeCategory() == recipeCategory));
     }
 
-
     @Test
-    public void getRecipesWithIngredientsDistinct() {
+    @Transactional
+    public void shouldFindAllRecipesContainingIngredient() {
+        Ingredient random = ingredientRepository.getOne(1);
+        List<Recipe> recipes = recipeRepository.findByIngredientsContaining(random);
+        assertTrue(recipes.stream().allMatch(r ->
+                r.getIngredients().contains(random)));
     }
 
-    @Test
-    public void getRecipesWithIngredients() {
-    }
-
-    @Test
-    public void getRecipesContainingAllIngredients() {
-    }
 }
