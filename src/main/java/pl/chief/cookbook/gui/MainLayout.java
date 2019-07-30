@@ -35,10 +35,13 @@ public class MainLayout extends HorizontalLayout {
         VerticalLayout content = new VerticalLayout();
         Grid<Recipe> grid = new Grid<>(Recipe.class);
         grid.setItems(recipeService.findAllRecipes());
-        //grid.setColumns("name");
+        grid.removeColumnByKey("ingredients");
+        grid.removeColumnByKey("ingredientsAmount");
+        grid.removeColumnByKey("id");
+        grid.setColumns("name", "description", "calories");
         content.add(grid);
 
-        add(sidenav, grid);
+        add(sidenav, content);
     }
 
 
