@@ -1,23 +1,27 @@
 package pl.chief.cookbook.builder;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
-import pl.chief.cookbook.repository.IngredientRepository;
+import pl.chief.cookbook.service.IngredientService;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static pl.chief.cookbook.util.NumberParser.parseIfIsNumber;
+
+@Component
 public class RecipeBuilder {
-    private IngredientRepository ingredientRepository;
+    private IngredientService ingredientService;
     private Recipe recipe;
 
     @Autowired
-    public RecipeBuilder(IngredientRepository ingredientRepository) {
+    public RecipeBuilder(IngredientService ingredientService) {
         this();
-        this.ingredientRepository = ingredientRepository;
+        this.ingredientService = ingredientService;
     }
 
     public RecipeBuilder() {
@@ -97,16 +101,20 @@ public class RecipeBuilder {
         return this;
     }
     public RecipeBuilder withCalories(String calories) {
-        return this.withCalories(Integer.parseInt(calories));
+        return this.withCalories(parseIfIsNumber(calories));
     }
 
-    public RecipeBuilder withIngredientAmount(Ingredient ingredient, Double amount) {
-        recipe.getIngredientsAmount().put(ingredient.getId(), amount);
-        return this;
+   public RecipeBuilder withIngredientAmount(Ingredient ingredient, Double amount) {
+        ingredientService.addIngredient(ingredient);
+        return withIngredientAmount(ingredientService.findIngredientByName(ingredient.getName()).getId(), amount);
     }
 
-    public RecipeBuilder withIngredientAmount(String ingredientName, Double amount) {
-        recipe.getIngredientsAmount().put(ingredientRepository.findByName(ingredientName).get().getId(), amount);
+   public RecipeBuilder withIngredientAmount(String ingredientName, Double amount) {
+        return withIngredientAmount(ingredientService.findIngredientByName(ingredientName).getId(), amount);
+    }
+
+    public RecipeBuilder withIngredientAmount(int ingredientId, Double amount){
+        recipe.getIngredientsAmount().put(ingredientId, amount);
         return this;
     }
     public RecipeBuilder withIngredient(Ingredient ingredient){
@@ -118,6 +126,8 @@ public class RecipeBuilder {
         return recipe;
     }
 
+
+
     public RecipeBuilder withIngredientsAmountsLists(List<Integer> ingredientIds, List<Double> ingredientAmount) {
         Map<Integer, Double> ingredientsAmounts = new HashMap<>();
         for (int i = 0; i < ingredientIds.size(); i++) {
@@ -126,4 +136,6 @@ public class RecipeBuilder {
         recipe.setIngredientsAmount(ingredientsAmounts);
         return this;
     }
+
+
 }

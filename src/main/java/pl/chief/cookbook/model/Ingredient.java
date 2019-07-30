@@ -2,7 +2,6 @@ package pl.chief.cookbook.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import pl.chief.cookbook.features.IngredientCategory;
@@ -20,6 +19,7 @@ public class Ingredient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @JsonProperty("ingredientName")
+    @Column(unique = true)
     private String name;
     @Enumerated(EnumType.ORDINAL)
     @Column(length = 10)

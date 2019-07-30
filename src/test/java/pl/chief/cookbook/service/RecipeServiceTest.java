@@ -52,6 +52,7 @@ public class RecipeServiceTest {
                 .withCategory(IngredientCategory.VEGETABLES)
                 .withUnit(MeasurementUnit.PCS)
                 .createIngredient();
+        ingredientRepository.save(ingredient);
 
         ingredient2 = ingredientRepository.getOne(1);
 
@@ -60,7 +61,7 @@ public class RecipeServiceTest {
                 .withCalories(400)
                 .withDescription("Italian Standard Pizza")
                 .withName("Margeritta")
-                .withIngredientAmount(ingredient, 1.0)
+                .withIngredientAmount(ingredientRepository.findByName(ingredient.getName()).get().getId(), 1.0)
                 .createRecipe();
 
 
@@ -69,7 +70,7 @@ public class RecipeServiceTest {
                 .withCalories(200)
                 .withDescription("Mohito drink")
                 .withName("Mohito")
-                .withIngredientAmount(ingredient, 10.0)
+                .withIngredientAmount(ingredientRepository.findByName(ingredient.getName()).get().getId(), 10.0)
                 .createRecipe();
 
         recipe3 = new RecipeBuilder()

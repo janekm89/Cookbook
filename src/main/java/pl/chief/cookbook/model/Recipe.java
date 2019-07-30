@@ -2,7 +2,6 @@ package pl.chief.cookbook.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import pl.chief.cookbook.features.RecipeCategory;
@@ -21,6 +20,7 @@ public class Recipe {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @JsonProperty("recipeName")
+    @Column(unique = true)
     private String name;
     @Column(name = "descr")
     private String description;
@@ -30,7 +30,8 @@ public class Recipe {
     @JsonIgnoreProperties(value = "Recipes containing")
     @JsonProperty("Ingredients in Recipe")
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "recipe_ingredients", joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"),
+    @JoinTable(name = "recipe_ingredients",
+            joinColumns = @JoinColumn(name = "recipe_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "ingr_id", referencedColumnName = "id"))
     private Set<Ingredient> ingredients;
     @ElementCollection
