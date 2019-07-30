@@ -56,6 +56,8 @@ public class RecipeServiceTest {
 
         ingredient2 = ingredientRepository.getOne(1);
 
+        ingredient2 = ingredientRepository.getOne(1);
+
         recipe = new RecipeBuilder()
                 .withCategory(RecipeCategory.PIZZA)
                 .withCalories(400)
@@ -71,6 +73,14 @@ public class RecipeServiceTest {
                 .withDescription("Mohito drink")
                 .withName("Mohito")
                 .withIngredientAmount(ingredientRepository.findByName(ingredient.getName()).get().getId(), 10.0)
+                .createRecipe();
+
+        recipe3 = new RecipeBuilder()
+                .withCategory(RecipeCategory.DRINKS)
+                .withCalories(200)
+                .withDescription("The strongest of drinks")
+                .withName("Russian drink")
+                .withIngredientAmount(ingredient2, 10.0)
                 .createRecipe();
 
         recipe3 = new RecipeBuilder()
