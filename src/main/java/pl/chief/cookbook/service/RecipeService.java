@@ -29,7 +29,6 @@ public class RecipeService {
         }
     }
 
-
     public List<Recipe> findAllRecipes() {
         return new ArrayList<>(recipeRepository.findAll());
     }
