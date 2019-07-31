@@ -25,7 +25,7 @@ import pl.chief.cookbook.util.ImagePath;
 @Route("ingredient-manager")
 public class IngredientManager extends VerticalLayout {
 
-    private Grid<Ingredient> ingredientGrid = new Grid<>(Ingredient.class);
+    private Grid<Ingredient> ingredientGrid;
 
     @Autowired
     IngredientService ingredientService;
@@ -33,14 +33,15 @@ public class IngredientManager extends VerticalLayout {
     IngredientManager(IngredientService ingredientService) {
 
         Image logo = new Image( ImagePath.LOGO, "logo");
-       // logo.setHeight("100px");
+        logo.setHeight("100px");
 
         AppLayout appLayout = new AppLayout();
         appLayout.setBranding(logo);
         AppLayoutMenu menu = appLayout.createMenu();
         menu.addMenuItems(
                 new AppLayoutMenuItem(VaadinIcon.CROSS_CUTLERY.create(), "Manage ingredients", "ingredient-manager"),
-                new AppLayoutMenuItem(VaadinIcon.SITEMAP.create(), "Manage recipes", "recipe-manager")
+                new AppLayoutMenuItem(VaadinIcon.SITEMAP.create(), "Manage recipes", "recipe-manager"),
+                new AppLayoutMenuItem(VaadinIcon.MENU.create(), "Find recipes", "index")
         );
 
 

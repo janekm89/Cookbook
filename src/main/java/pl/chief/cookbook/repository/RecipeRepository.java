@@ -13,6 +13,8 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface RecipeRepository extends JpaRepository<Recipe, Integer> {
+
+
     Optional<Recipe> findByName(String name);
 
     List<Recipe> findByCaloriesBetween(int caloriesMin, int caloriesMax);

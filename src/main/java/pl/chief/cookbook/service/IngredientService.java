@@ -1,18 +1,17 @@
 package pl.chief.cookbook.service;
 
+import org.apache.catalina.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.exception.IngredientNotFoundException;
-import pl.chief.cookbook.exception.WrongNameException;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.model.Ingredient;
+import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.repository.IngredientRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static pl.chief.cookbook.validation.CommonTraitsValidator.validName;
+import java.util.stream.Collectors;
 
 @Service
 public class IngredientService {
@@ -20,13 +19,13 @@ public class IngredientService {
     @Autowired
     IngredientRepository ingredientRepository;
 
-    public void addIngredient(Ingredient ingredient) {
+
+    public boolean addIngredient(Ingredient ingredient) {
         if (ingredientRepository.findByName(ingredient.getName()).isPresent()) {
-            throw new EntityAlreadyExistException(ingredient.getName());
-        } else if(!validName(ingredient.getName())){
-            throw new WrongNameException(ingredient.getName());}
-        else {
+            return false;
+        } else {
             ingredientRepository.save(ingredient);
+            return true;
         }
     }
 
@@ -36,10 +35,6 @@ public class IngredientService {
 
     public Ingredient findIngredientByName(String name) {
         return ingredientRepository.findByName(name).orElseThrow(IngredientNotFoundException::new);
-    }
-
-    public List<Ingredient> findIngredientsWithNames(String... ingredientNames){
-        return ingredientRepository.findByNameIn(ingredientNames);
     }
 
     public List<Ingredient> findIngredientsByCategory(IngredientCategory ingredientCategory) {
@@ -63,5 +58,9 @@ public class IngredientService {
     public boolean deleteIngredientById(int ingredientId) {
         Ingredient existingIngredient = ingredientRepository.findById(ingredientId).orElseThrow(IngredientNotFoundException::new);
         return deleteIngredient(existingIngredient);
+    }
+
+    public List<Ingredient> findIngredientsByRecipe(Recipe recipe){
+        return ingredientRepository.findByRecipes(recipe);
     }
 }
