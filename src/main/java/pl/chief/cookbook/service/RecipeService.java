@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.exception.RecipeNotFoundException;
+import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.repository.RecipeRepository;
@@ -44,6 +45,10 @@ public class RecipeService {
     public Recipe findRecipeById(String id) {
         int recipeId = parseIfIsNumber(id);
         return recipeRepository.findById(recipeId).orElseThrow(RecipeNotFoundException::new);
+    }
+
+    public List<Recipe> findByCategory(RecipeCategory recipeCategory){
+        return recipeRepository.findByRecipeCategory(recipeCategory);
     }
 
     public List<Recipe> findRecipesWithCaloriesIn(String caloriesMin, String caloriesMax) {
