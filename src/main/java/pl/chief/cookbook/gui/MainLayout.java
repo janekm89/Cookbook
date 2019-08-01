@@ -12,6 +12,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 import pl.chief.cookbook.service.RecipeService;
@@ -26,7 +27,7 @@ public class MainLayout extends VerticalLayout {
     @Autowired
     MainLayout(RecipeService recipeService, IngredientService ingredientService) {
 
-        Image logo = new Image( ImagePath.LOGO, "logo");
+        Image logo = new Image(ImagePath.LOGO, "logo");
         logo.setHeight("100px");
 
         AppLayout appLayout = new AppLayout();
@@ -39,16 +40,20 @@ public class MainLayout extends VerticalLayout {
         );
 
         VerticalLayout sidenav = new VerticalLayout();
+
         ListBox<String> listBox = new ListBox<>();
         listBox.setItems(ingredientService
                 .findAllIngredients()
                 .stream()
                 .map(ingredient -> ingredient.getName())
                 .collect(Collectors.toList()));
+
+
         Button button = new Button("find");
+
+
         sidenav.add(listBox, button);
         sidenav.setWidth("10%");
-
 
 
         Grid<Recipe> grid = new Grid<>(Recipe.class);
