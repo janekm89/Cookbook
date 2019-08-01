@@ -34,12 +34,12 @@ public class RecipeService {
         return new ArrayList<>(recipeRepository.findAll());
     }
 
-    public Recipe findRecipeByName(String name) {
-        return recipeRepository.findByName(name).orElseThrow(RecipeNotFoundException::new);
+    public List<Recipe> findRecipeByName(String name) {
+        return recipeRepository.findByNameLike(name);
     }
 
     public List<Recipe> findRecipeByDescription(String description){
-        return recipeRepository.findByDescription(description);
+        return recipeRepository.findByDescriptionLike(description);
     }
 
     public Recipe findRecipeById(String id) {

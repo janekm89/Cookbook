@@ -10,7 +10,9 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.chief.cookbook.features.RecipeCategory;
@@ -60,15 +62,43 @@ public class MainLayout extends VerticalLayout {
         recipeNameTextField.setPlaceholder("recipe Name");
         Button findByNameButton = new Button("Find by name");
         findByNameButton.addClickListener(click -> {
-            grid.setItems(recipeService.findRecipeByName(recipeNameTextField.getValue()));
+            grid.setItems(recipeService.findRecipeByName("%" + recipeNameTextField.getValue() + "%"));
         });
         HorizontalLayout finByNameLayout = new HorizontalLayout();
         finByNameLayout.add(recipeNameTextField, findByNameButton);
 
 
-        sidenav.add(findByCategoryLayout, finByNameLayout);
-        sidenav.setWidth("20%");
+        TextField recipeDescriptionTextField = new TextField();
+        recipeDescriptionTextField.setPlaceholder("recipe Description");
+        Button findByDescButton = new Button("Find by description");
+        findByDescButton.addClickListener(click -> {
+            grid.setItems(recipeService.findRecipeByDescription("%" + recipeDescriptionTextField.getValue() + "%"));
+        });
+        HorizontalLayout finByDescLayout = new HorizontalLayout();
+        finByDescLayout.add(recipeDescriptionTextField, findByDescButton);
 
+        TextField caloriesMinField = new TextField();
+        caloriesMinField.setPlaceholder("Calories minimum");
+        caloriesMinField.setMaxWidth("170px");
+        TextField caloriesMaxField = new TextField();
+        caloriesMaxField.setPlaceholder("Calories maximum");
+        caloriesMaxField.setMaxWidth("170px");
+        Button findByCaloriesButton = new Button("Find by calories");
+        findByCaloriesButton.addClickListener(click -> {
+            grid.setItems(recipeService.findRecipesWithCaloriesIn(
+                    caloriesMinField.getValue(), caloriesMaxField.getValue()));
+        });
+        VerticalLayout caloriesLayout = new VerticalLayout();
+        caloriesLayout.add(caloriesMinField, caloriesMaxField);
+        HorizontalLayout findByCaloriesLayout = new HorizontalLayout();
+        findByCaloriesButton.setMinWidth("150px");
+        findByCaloriesLayout.add(caloriesLayout, findByCaloriesButton);
+        findByCaloriesLayout.setAlignItems(Alignment.CENTER);
+
+
+
+        sidenav.add(findByCategoryLayout, finByNameLayout, finByDescLayout, findByCaloriesLayout);
+        sidenav.setWidth("25%");
 
         grid.removeColumnByKey("ingredients");
         grid.removeColumnByKey("ingredientsAmount");
