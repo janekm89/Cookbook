@@ -10,6 +10,7 @@ import pl.chief.cookbook.builder.IngredientBuilder;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.MeasurementUnit;
 import pl.chief.cookbook.model.Ingredient;
+import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.repository.IngredientRepository;
 
 import java.util.List;
@@ -27,12 +28,16 @@ public class IngredientServiceTest {
     private IngredientService ingredientService;
 
     @Autowired
+    private RecipeService recipeService;
+
+    @Autowired
     private IngredientRepository ingredientRepository;
 
     @Before
     public void setUp(){
         ingredient = new IngredientBuilder().withName("Ser").withUnit(MeasurementUnit.GRAM)
                 .withCategory(IngredientCategory.DAIRY_AND_EGGS).createIngredient();
+
     }
 
 
@@ -52,5 +57,16 @@ public class IngredientServiceTest {
         IngredientCategory ingredientCategory = IngredientCategory.DAIRY_AND_EGGS;
         List<Ingredient> ingredientList = ingredientRepository.findByIngredientCategory(ingredientCategory);
         assertTrue(ingredientList.stream().allMatch(i -> i.getIngredientCategory() == ingredientCategory));
+    }
+
+    @Test
+    public void shouldFindIngredientAmountByIngredientIdAndRecipeId(){
+        assertEquals(10.0, ingredientService.findIngredientAmountByIngredientIdAndRecipeId(2,2),0.1);
+    }
+
+    @Test
+    public void shouldFindIngredientsByRecipe(){
+        Recipe recipe = recipeService.findRecipeById("1");
+        assertEquals(2, ingredientService.findIngredientsByRecipe(recipe).get(0).getId());
     }
 }

@@ -3,7 +3,9 @@ package pl.chief.cookbook.service;
 import org.apache.catalina.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.exception.IngredientNotFoundException;
+import pl.chief.cookbook.exception.WrongNameException;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
@@ -13,6 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static pl.chief.cookbook.validation.CommonTraitsValidator.validName;
+
 @Service
 public class IngredientService {
 
@@ -20,12 +24,13 @@ public class IngredientService {
     IngredientRepository ingredientRepository;
 
 
-    public boolean addIngredient(Ingredient ingredient) {
+    public void addIngredient(Ingredient ingredient) {
         if (ingredientRepository.findByName(ingredient.getName()).isPresent()) {
-            return false;
-        } else {
+            throw new EntityAlreadyExistException(ingredient.getName());
+        } else if(!validName(ingredient.getName())){
+            throw new WrongNameException(ingredient.getName());}
+        else {
             ingredientRepository.save(ingredient);
-            return true;
         }
     }
 
@@ -39,6 +44,14 @@ public class IngredientService {
 
     public List<Ingredient> findIngredientsByCategory(IngredientCategory ingredientCategory) {
         return ingredientRepository.findByIngredientCategory(ingredientCategory);
+    }
+
+    public List<Ingredient> findIngredientsWithNames(String... ingredientNames){
+        return ingredientRepository.findByNameIn(ingredientNames);
+    }
+
+    public double findIngredientAmountByIngredientIdAndRecipeId(int ingredientId, int recipeId){
+        return ingredientRepository.findIngredientAmountInRecipe(ingredientId, recipeId);
     }
 
     public boolean updateIngredient(Ingredient ingredient, int ingredientId) {
