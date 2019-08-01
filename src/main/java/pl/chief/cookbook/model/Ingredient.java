@@ -46,4 +46,14 @@ public class Ingredient {
         this(name, unit);
         this.ingredientCategory = category;
     }
+
+    @Override
+    public String toString() {
+        return "Ingredient{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", unit=" + unit +
+                ", ingredientCategory=" + ingredientCategory +
+                '}';
+    }
 }

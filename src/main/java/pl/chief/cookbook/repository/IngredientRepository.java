@@ -1,6 +1,8 @@
 package pl.chief.cookbook.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
@@ -13,4 +15,7 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Integer>
     List<Ingredient> findByIngredientCategory(IngredientCategory category);
     List<Ingredient> findByNameIn(String... ingredientNames);
     List<Ingredient> findByRecipes(Recipe recipe);
+    @Query(nativeQuery = true,value = "select amount from recipe_ingredients where ingr_id =:ingredientId and recipe_id =:recipeId")
+    double findIngredientAmountInRecipe(@Param(value = "ingredientId") int ingredientId,
+                                              @Param(value = "recipeId") int recipeId);
 }

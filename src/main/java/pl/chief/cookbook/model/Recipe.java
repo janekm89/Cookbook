@@ -64,4 +64,15 @@ public class Recipe {
         this(name, description, recipeCategory, calories, ingredientsAmount);
         this.ingredients = ingredients;
     }
+
+    @Override
+    public String toString() {
+        return "Recipe{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", recipeCategory=" + recipeCategory +
+                ", calories=" + calories +
+                '}';
+    }
 }
