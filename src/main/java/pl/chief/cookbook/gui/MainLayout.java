@@ -43,7 +43,7 @@ public class MainLayout extends VerticalLayout {
         menu.addMenuItems(
                 new AppLayoutMenuItem(VaadinIcon.CROSS_CUTLERY.create(), "Manage ingredients", "ingredient-manager"),
                 new AppLayoutMenuItem(VaadinIcon.SITEMAP.create(), "Manage recipes", "recipe-manager"),
-                new AppLayoutMenuItem(VaadinIcon.MENU.create(), "Find recipes", "index")
+                new AppLayoutMenuItem(VaadinIcon.SEARCH.create(), "Find recipes", "index")
         );
 
 
