@@ -62,7 +62,6 @@ public class MainLayout extends VerticalLayout {
         recipeNameTextField.setPlaceholder("recipe Name");
 
 
-
         TextField recipeDescriptionTextField = new TextField();
         recipeDescriptionTextField.setPlaceholder("recipe Description");
 
@@ -75,12 +74,10 @@ public class MainLayout extends VerticalLayout {
         caloriesMaxField.setMaxWidth("170px");
 
 
-
         List<String> ingredientList = ingredientService.findAllIngredientNames();
         MultiselectComboBox<String> multiSelectIngredient = new MultiselectComboBox<>();
         multiSelectIngredient.setItems(ingredientList);
         multiSelectIngredient.setPlaceholder("Ingredients");
-
 
 
         Button searchGeneralButton = new Button("Search");
@@ -121,10 +118,12 @@ public class MainLayout extends VerticalLayout {
             }
             if (!multiSelectIngredient.getSelectedItems().isEmpty()) {
                 List<Ingredient> ingredients = new ArrayList<>();
+                List<Integer> recipesIds = new ArrayList<>();
                 for (String ingrName : multiSelectIngredient.getSelectedItems()) {
                     ingredients.add(ingredientService.findIngredientByName(ingrName));
                 }
-                ingredientRecipes = recipeService.findRecipesWithIngredients(ingredients);
+                recipesIds = recipeService.findRecipesIdWithIngredients(ingredients);
+                ingredientRecipes = recipeService.findRecipesWithIds(recipesIds);
                 if (!allRecipes.isEmpty()) {
                     allRecipes.retainAll(ingredientRecipes);
                 } else {
@@ -146,6 +145,11 @@ public class MainLayout extends VerticalLayout {
         grid.removeColumnByKey("id");
         grid.setColumns("name", "description", "calories");
 
+        grid.addItemClickListener(click -> {
+            RecipeView recipeView = new RecipeView(recipeService, ingredientService, click.getItem().getId()
+            );
+            //Tutaj dawcio dzialasz
+        });
         table.add(grid);
 
         content.add(sidenav, table);

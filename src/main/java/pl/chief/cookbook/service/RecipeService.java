@@ -43,6 +43,9 @@ public class RecipeService {
 
     public Recipe findRecipeById(String id) {
         int recipeId = parseIfIsNumber(id);
+        return findRecipeById(recipeId);
+    }
+    public Recipe findRecipeById(int recipeId){
         return recipeRepository.findById(recipeId).orElseThrow(RecipeNotFoundException::new);
     }
 
@@ -65,13 +68,16 @@ public class RecipeService {
         return recipeRepository.findByIngredientsContaining(ingredient);
     }
 
-    public List<Recipe> findRecipesWithIngredients(Collection<Ingredient> ingredients) {
+    public List<Integer> findRecipesIdWithIngredients(Collection<Ingredient> ingredients) {
         List<Integer> ingredientIds = ingredients.stream().map(Ingredient::getId).collect(Collectors.toList());
-        List<Recipe> recipes = new ArrayList<>();
-        recipes.addAll(recipeRepository.findByIngredients(ingredientIds, ingredientIds.size()));
-        if (recipes.size() == 0)
+        List<Integer> recipesIds = recipeRepository.findRecipeIdByIngredients(ingredientIds, ingredientIds.size());
+        if (recipesIds.size() == 0)
             throw new RecipeNotFoundException(ingredientIds);
-        return recipes;
+        return recipesIds;
+    }
+
+    public List<Recipe> findRecipesWithIds(Collection<Integer> recipesIds) {
+        return recipeRepository.findRecipesByIdIn(recipesIds);
     }
 
 

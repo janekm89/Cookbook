@@ -18,8 +18,8 @@ public class RecipeView extends VerticalLayout {
 
 
     @Autowired
-    RecipeView(RecipeService recipeService, IngredientService ingredientService) {
-        Recipe recipe = recipeService.findRecipeById("1");
+    RecipeView(RecipeService recipeService, IngredientService ingredientService, int recipeId) {
+        Recipe recipe = recipeService.findRecipeById(recipeId);
         Label nameLabel = new Label(recipe.getName());
         nameLabel.getStyle().set("font-weight", "bold");
         Label descriptionLabel = new Label(recipe.getDescription());
