@@ -1,8 +1,7 @@
 package pl.chief.cookbook.exception;
 
-import javax.validation.ValidationException;
 
-public class NotNumberException extends ValidationException {
+public class NotNumberException extends Exception {
 
     public NotNumberException(String number) {
         super(number + " is not a valid number");

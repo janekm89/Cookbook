@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.chief.cookbook.builder.IngredientBuilder;
+import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.MeasurementUnit;
 import pl.chief.cookbook.model.Ingredient;
@@ -66,7 +67,12 @@ public class IngredientServiceTest {
 
     @Test
     public void shouldFindIngredientsByRecipe(){
-        Recipe recipe = recipeService.findRecipeById("1");
+        Recipe recipe = null;
+        try {
+            recipe = recipeService.findRecipeById("1");
+        } catch (NotNumberException e) {
+            e.printStackTrace();
+        }
         assertEquals(2, ingredientService.findIngredientsByRecipe(recipe).get(0).getId());
     }
 }

@@ -5,9 +5,12 @@ import com.vaadin.flow.component.applayout.AppLayoutMenu;
 import com.vaadin.flow.component.applayout.AppLayoutMenuItem;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -16,6 +19,8 @@ import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.gatanaso.MultiselectComboBox;
+import pl.chief.cookbook.exception.NotNumberException;
+import pl.chief.cookbook.exception.RecipeNotFoundException;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;
@@ -61,10 +66,8 @@ public class MainLayout extends VerticalLayout {
         TextField recipeNameTextField = new TextField();
         recipeNameTextField.setPlaceholder("recipe Name");
 
-
         TextField recipeDescriptionTextField = new TextField();
         recipeDescriptionTextField.setPlaceholder("recipe Description");
-
 
         TextField caloriesMinField = new TextField();
         caloriesMinField.setPlaceholder("Calories minimum");
@@ -73,14 +76,12 @@ public class MainLayout extends VerticalLayout {
         caloriesMaxField.setPlaceholder("Calories maximum");
         caloriesMaxField.setMaxWidth("170px");
 
-
         List<String> ingredientList = ingredientService.findAllIngredientNames();
         MultiselectComboBox<String> multiSelectIngredient = new MultiselectComboBox<>();
         multiSelectIngredient.setItems(ingredientList);
         multiSelectIngredient.setPlaceholder("Ingredients");
-
-
         Button searchGeneralButton = new Button("Search");
+
         searchGeneralButton.addClickListener(click -> {
             List<Recipe> allRecipes = new ArrayList<>();
             List<Recipe> categoryRecipes;
@@ -88,50 +89,45 @@ public class MainLayout extends VerticalLayout {
             List<Recipe> descriptionRecipes;
             List<Recipe> caloriesRecipes;
             List<Recipe> ingredientRecipes;
-            if (recipeCategoryComboBox.getValue() != null) {
-                categoryRecipes = recipeService.findByCategory(recipeCategoryComboBox.getValue());
-                allRecipes.addAll(categoryRecipes);
-            }
-            if (!recipeNameTextField.getValue().isEmpty()) {
-                nameRecipes = recipeService.findRecipeByName("%" + recipeNameTextField.getValue() + "%");
-                if (!allRecipes.isEmpty()) {
-                    allRecipes.retainAll(nameRecipes);
-                } else {
-                    allRecipes.addAll(nameRecipes);
+            Notification notification = new Notification();
+            notification.setDuration(5000);
+            notification.setPosition(Notification.Position.MIDDLE);
+
+            try {
+                if (recipeCategoryComboBox.getValue() != null) {
+                    categoryRecipes = recipeService.findByCategory(recipeCategoryComboBox.getValue());
+                    retainCollectionsIfNotEmpty(allRecipes, categoryRecipes);
                 }
-            }
-            if (!recipeDescriptionTextField.getValue().isEmpty()) {
-                descriptionRecipes = recipeService.findRecipeByName("%" + recipeDescriptionTextField.getValue() + "%");
-                if (!allRecipes.isEmpty()) {
-                    allRecipes.retainAll(descriptionRecipes);
-                } else {
-                    allRecipes.addAll(descriptionRecipes);
+                if (!recipeNameTextField.getValue().isEmpty()) {
+                    nameRecipes = recipeService.findRecipeByName("%" + recipeNameTextField.getValue() + "%");
+                    retainCollectionsIfNotEmpty(allRecipes, nameRecipes);
                 }
-            }
-            if (!caloriesMinField.getValue().isEmpty() && !caloriesMaxField.getValue().isEmpty()) {
-                caloriesRecipes = recipeService.findRecipesWithCaloriesIn(caloriesMinField.getValue(), caloriesMaxField.getValue());
-                if (!allRecipes.isEmpty()) {
-                    allRecipes.retainAll(caloriesRecipes);
-                } else {
-                    allRecipes.addAll(caloriesRecipes);
+                if (!recipeDescriptionTextField.getValue().isEmpty()) {
+                    descriptionRecipes = recipeService.findRecipeByName("%" + recipeDescriptionTextField.getValue() + "%");
+                    retainCollectionsIfNotEmpty(allRecipes, descriptionRecipes);
                 }
-            }
-            if (!multiSelectIngredient.getSelectedItems().isEmpty()) {
-                List<Ingredient> ingredients = new ArrayList<>();
-                List<Integer> recipesIds = new ArrayList<>();
-                for (String ingrName : multiSelectIngredient.getSelectedItems()) {
-                    ingredients.add(ingredientService.findIngredientByName(ingrName));
+                if (!caloriesMinField.getValue().isEmpty() || !caloriesMaxField.getValue().isEmpty()) {
+                    caloriesRecipes = recipeService.findRecipesWithCaloriesIn(caloriesMinField.getValue(), caloriesMaxField.getValue());
+                    retainCollectionsIfNotEmpty(allRecipes, caloriesRecipes);
                 }
-                recipesIds = recipeService.findRecipesIdWithIngredients(ingredients);
-                ingredientRecipes = recipeService.findRecipesWithIds(recipesIds);
-                if (!allRecipes.isEmpty()) {
-                    allRecipes.retainAll(ingredientRecipes);
-                } else {
-                    allRecipes.addAll(ingredientRecipes);
+                if (!multiSelectIngredient.getSelectedItems().isEmpty()) {
+                    List<Ingredient> ingredients = new ArrayList<>();
+                    for (String ingrName : multiSelectIngredient.getSelectedItems()) {
+                        ingredients.add(ingredientService.findIngredientByName(ingrName));
+                    }
+                    ingredientRecipes = recipeService
+                            .findRecipesWithIds(recipeService.findRecipesIdWithIngredients(ingredients));
+
+                    retainCollectionsIfNotEmpty(allRecipes, ingredientRecipes);
                 }
+                grid.setItems(allRecipes);
+
+            } catch (RecipeNotFoundException | NotNumberException e) {
+                grid.setItems(new ArrayList<>());
+                notification.setText(e.getMessage());
+                notification.open();
             }
 
-            grid.setItems(allRecipes);
 
         });
 
@@ -146,9 +142,15 @@ public class MainLayout extends VerticalLayout {
         grid.setColumns("name", "description", "calories");
 
         grid.addItemClickListener(click -> {
-            RecipeView recipeView = new RecipeView(recipeService, ingredientService, click.getItem().getId()
-            );
-            //Tutaj dawcio dzialasz
+            RecipeView recipeView = new RecipeView(recipeService, ingredientService, click.getItem().getId());
+            Dialog dialog = new Dialog();
+            dialog.setWidth("1000px");
+            dialog.setHeight("500px");
+            dialog.open();
+            Button cancelButton = new Button("Close", event -> {
+                dialog.close();
+            });
+            dialog.add(recipeView, cancelButton);
         });
         table.add(grid);
 
@@ -156,5 +158,13 @@ public class MainLayout extends VerticalLayout {
 
         appLayout.setContent(content);
         add(appLayout);
+    }
+
+    private void retainCollectionsIfNotEmpty(List<Recipe> containingAll, List<Recipe> newElements) {
+        if (!containingAll.isEmpty()) {
+            containingAll.retainAll(newElements);
+        } else if(!newElements.isEmpty()) {
+            containingAll.addAll(newElements);
+        }
     }
 }
