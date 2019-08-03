@@ -5,8 +5,11 @@ import com.vaadin.flow.component.applayout.AppLayoutMenu;
 import com.vaadin.flow.component.applayout.AppLayoutMenuItem;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -50,7 +53,6 @@ public class IngredientManager extends VerticalLayout {
         );
 
 
-
         TextField nameField = new TextField();
         nameField.setLabel("ingredient name");
 
@@ -66,6 +68,7 @@ public class IngredientManager extends VerticalLayout {
         ingredientGrid.removeColumnByKey("recipes");
         ingredientGrid.setColumns("name", "unit", "ingredientCategory");
         ingredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("remove");
+        ingredientGrid.addColumn(new ComponentRenderer<>(this::buildEditButton)).setHeader("edit");
         ingredientGrid.getColumns()
                 .forEach(column -> column.setWidth("250px"));
         ingredientGrid.setHeightFull();
@@ -97,15 +100,13 @@ public class IngredientManager extends VerticalLayout {
         ingredientEditor.add(nameField, unitComboBox, ingredientCategoryComboBox, button);
         ingredientEditor.setVerticalComponentAlignment(Alignment.CENTER, button);
 
-    //    add(ingredientEditor, ingredientGrid);
+        //    add(ingredientEditor, ingredientGrid);
         VerticalLayout layoutContent = new VerticalLayout();
         layoutContent.add(ingredientEditor, ingredientGrid);
         layoutContent.setHeightFull();
 
         appLayout.setContent(layoutContent);
         add(appLayout);
-
-
 
 
     }
@@ -132,5 +133,54 @@ public class IngredientManager extends VerticalLayout {
         ingredientGrid.setItems(ingredientService.findAllIngredients());
     }
 
+    private Button buildEditButton(Ingredient ingredient) {
+        Button button = new Button("edit");
+
+        button.addClickListener(
+                buttonClickEvent -> {
+                    Dialog dialog = new Dialog();
+                    dialog.open();
+                    TextField nameField = new TextField();
+                    nameField.setLabel("ingredient name");
+
+                    ComboBox<MeasurementUnit> unitComboBox = new ComboBox<>("measurment unit");
+                    unitComboBox.setItems(MeasurementUnit.values());
+
+                    ComboBox<IngredientCategory> ingredientCategoryComboBox = new ComboBox<>("ingredient category");
+                    ingredientCategoryComboBox.setItems(IngredientCategory.values());
+
+//                    ingredient.setName(nameField.getValue());
+//                    ingredient.setUnit(unitComboBox.getValue());
+//                    ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
+//                    dialog.setCloseOnEsc(false);
+//                    dialog.setCloseOnOutsideClick(false);
+
+                    Label messageLabel = new Label();
+
+                    NativeButton confirmButton = new NativeButton("Edit ingredient", event -> {
+
+                        ingredient.setName(nameField.getValue());
+                        ingredient.setUnit(unitComboBox.getValue());
+                        ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
+                        editIngredient(ingredient);
+                        messageLabel.setText("Ingredient edited!");
+                        dialog.close();
+                    });
+                    NativeButton cancelButton = new NativeButton("Cancel", event -> {
+                        messageLabel.setText("Cancelled...");
+                        dialog.close();
+                    });
+                    //dialog.add(confirmButton, cancelButton);
+                    //dialog.add(nameField, unitComboBox,  ingredientCategoryComboBox, confirmButton, cancelButton);
+                    dialog.add(nameField, unitComboBox, ingredientCategoryComboBox, confirmButton, cancelButton);
+
+                });
+        return button;
+    }
+
+    private void editIngredient(Ingredient ingredient) {
+        ingredientService.updateIngredient(ingredient, ingredient.getId());
+        ingredientGrid.setItems(ingredientService.findAllIngredients());
+    }
 }
 
