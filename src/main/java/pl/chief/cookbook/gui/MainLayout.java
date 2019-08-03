@@ -27,6 +27,7 @@ import pl.chief.cookbook.util.ImagePath;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Route("index")
@@ -55,32 +56,16 @@ public class MainLayout extends VerticalLayout {
         recipeCategoryComboBox.setPlaceholder("Recipe category");
         List<RecipeCategory> recipeCategories = Arrays.asList(RecipeCategory.values());
         recipeCategoryComboBox.setItems(recipeCategories);
-        Button findByCategoryButton = new Button("Find by category");
-        findByCategoryButton.addClickListener(click -> {
-            grid.setItems(recipeService.findByCategory(recipeCategoryComboBox.getValue()));
 
-        });
-        HorizontalLayout findByCategoryLayout = new HorizontalLayout();
-        findByCategoryLayout.add(recipeCategoryComboBox, findByCategoryButton);
 
         TextField recipeNameTextField = new TextField();
         recipeNameTextField.setPlaceholder("recipe Name");
-        Button findByNameButton = new Button("Find by name");
-        findByNameButton.addClickListener(click -> {
-            grid.setItems(recipeService.findRecipeByName("%" + recipeNameTextField.getValue() + "%"));
-        });
-        HorizontalLayout finByNameLayout = new HorizontalLayout();
-        finByNameLayout.add(recipeNameTextField, findByNameButton);
+
 
 
         TextField recipeDescriptionTextField = new TextField();
         recipeDescriptionTextField.setPlaceholder("recipe Description");
-        Button findByDescButton = new Button("Find by description");
-        findByDescButton.addClickListener(click -> {
-            grid.setItems(recipeService.findRecipeByDescription("%" + recipeDescriptionTextField.getValue() + "%"));
-        });
-        HorizontalLayout finByDescLayout = new HorizontalLayout();
-        finByDescLayout.add(recipeDescriptionTextField, findByDescButton);
+
 
         TextField caloriesMinField = new TextField();
         caloriesMinField.setPlaceholder("Calories minimum");
@@ -88,73 +73,71 @@ public class MainLayout extends VerticalLayout {
         TextField caloriesMaxField = new TextField();
         caloriesMaxField.setPlaceholder("Calories maximum");
         caloriesMaxField.setMaxWidth("170px");
-        Button findByCaloriesButton = new Button("Find by calories");
-        findByCaloriesButton.addClickListener(click -> {
-            grid.setItems(recipeService.findRecipesWithCaloriesIn(
-                    caloriesMinField.getValue(), caloriesMaxField.getValue()));
-        });
-        VerticalLayout caloriesLayout = new VerticalLayout();
-        caloriesLayout.add(caloriesMinField, caloriesMaxField);
-        HorizontalLayout findByCaloriesLayout = new HorizontalLayout();
-        findByCaloriesButton.setMinWidth("150px");
-        findByCaloriesLayout.add(caloriesLayout, findByCaloriesButton);
-        findByCaloriesLayout.setAlignItems(Alignment.CENTER);
 
 
-        ComboBox<String> ingredientComboBox = new ComboBox<>();
-        ingredientComboBox.setPlaceholder("Ingredient");
+
         List<String> ingredientList = ingredientService.findAllIngredientNames();
-        ingredientComboBox.setItems(ingredientList);
-        Button findByIngredientButton = new Button("Find by Ingredient");
-        findByIngredientButton.addClickListener(click -> {
-            grid.setItems(recipeService.
-                    findAllRecipesContainingIngredient(ingredientService.
-                            findIngredientByName(ingredientComboBox.getValue())));
-        });
-        HorizontalLayout finByIngredientLayout = new HorizontalLayout();
-        finByIngredientLayout.add(ingredientComboBox, findByIngredientButton);
-
-
-        //TreeGrid usunac jesli nie uda sie uruchomic
-        TreeGrid<String> tree = new TreeGrid<>();
-        List<String> ingredientCategory = new ArrayList<>();
-        for (IngredientCategory category : IngredientCategory.values()) {
-            ingredientCategory.add(category.toString());
-        }
-        tree.setItems(ingredientCategory);
-
-       /*TreeData<String> ingredientsTree = new TreeData<>();
-        ingredientsTree.addRootItems(IngredientCategory.values().toString());
-        for (IngredientCategory ingredientCategory : IngredientCategory.values()) {
-            for (String ingredientName : ingredientService.findAllIngredientNamesByIngredientCategory(ingredientCategory)) {
-                ingredientsTree.addItem(ingredientCategory.toString(), ingredientName);
-            }
-        }*/
-
         MultiselectComboBox<String> multiSelectIngredient = new MultiselectComboBox<>();
         multiSelectIngredient.setItems(ingredientList);
         multiSelectIngredient.setPlaceholder("Ingredients");
-        Button findByMultiIngredientButton = new Button("Find by Ingredient");
-        findByMultiIngredientButton.addClickListener(click -> {
-            List<Ingredient> ingredients = new ArrayList<>();
-            for (String ingrName : multiSelectIngredient.getSelectedItems()) {
-                ingredients.add(ingredientService.findIngredientByName(ingrName));
-            }
-            grid.setItems(recipeService.
-                    findRecipesWithIngredients(ingredients));
-        });
 
-        HorizontalLayout findByMultiIngredients = new HorizontalLayout();
 
-        findByMultiIngredients.add(multiSelectIngredient, findByMultiIngredientButton);
 
         Button searchGeneralButton = new Button("Search");
-        searchGeneralButton.addClickListener(click ->{
-            
+        searchGeneralButton.addClickListener(click -> {
+            List<Recipe> allRecipes = new ArrayList<>();
+            List<Recipe> categoryRecipes;
+            List<Recipe> nameRecipes;
+            List<Recipe> descriptionRecipes;
+            List<Recipe> caloriesRecipes;
+            List<Recipe> ingredientRecipes;
+            if (recipeCategoryComboBox.getValue() != null) {
+                categoryRecipes = recipeService.findByCategory(recipeCategoryComboBox.getValue());
+                allRecipes.addAll(categoryRecipes);
+            }
+            if (!recipeNameTextField.getValue().isEmpty()) {
+                nameRecipes = recipeService.findRecipeByName("%" + recipeNameTextField.getValue() + "%");
+                if (!allRecipes.isEmpty()) {
+                    allRecipes.retainAll(nameRecipes);
+                } else {
+                    allRecipes.addAll(nameRecipes);
+                }
+            }
+            if (!recipeDescriptionTextField.getValue().isEmpty()) {
+                descriptionRecipes = recipeService.findRecipeByName("%" + recipeDescriptionTextField.getValue() + "%");
+                if (!allRecipes.isEmpty()) {
+                    allRecipes.retainAll(descriptionRecipes);
+                } else {
+                    allRecipes.addAll(descriptionRecipes);
+                }
+            }
+            if (!caloriesMinField.getValue().isEmpty() && !caloriesMaxField.getValue().isEmpty()) {
+                caloriesRecipes = recipeService.findRecipesWithCaloriesIn(caloriesMinField.getValue(), caloriesMaxField.getValue());
+                if (!allRecipes.isEmpty()) {
+                    allRecipes.retainAll(caloriesRecipes);
+                } else {
+                    allRecipes.addAll(caloriesRecipes);
+                }
+            }
+            if (!multiSelectIngredient.getSelectedItems().isEmpty()) {
+                List<Ingredient> ingredients = new ArrayList<>();
+                for (String ingrName : multiSelectIngredient.getSelectedItems()) {
+                    ingredients.add(ingredientService.findIngredientByName(ingrName));
+                }
+                ingredientRecipes = recipeService.findRecipesWithIngredients(ingredients);
+                if (!allRecipes.isEmpty()) {
+                    allRecipes.retainAll(ingredientRecipes);
+                } else {
+                    allRecipes.addAll(ingredientRecipes);
+                }
+            }
+
+            grid.setItems(allRecipes);
+
         });
 
-        sidenav.add(findByCategoryLayout, finByNameLayout, finByDescLayout,
-                findByCaloriesLayout, finByIngredientLayout, findByMultiIngredients,
+        sidenav.add(recipeCategoryComboBox, recipeNameTextField, recipeDescriptionTextField,
+                caloriesMinField, caloriesMaxField, multiSelectIngredient,
                 searchGeneralButton);
         sidenav.setWidth("25%");
 

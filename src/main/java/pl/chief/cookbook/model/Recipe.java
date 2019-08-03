@@ -7,10 +7,7 @@ import lombok.Setter;
 import pl.chief.cookbook.features.RecipeCategory;
 
 import javax.persistence.*;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Setter
@@ -75,4 +72,14 @@ public class Recipe {
                 ", calories=" + calories +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Recipe recipe = (Recipe) o;
+        return id == recipe.id &&
+                name.equals(recipe.name);
+    }
+
 }
