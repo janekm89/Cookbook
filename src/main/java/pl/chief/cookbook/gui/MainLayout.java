@@ -120,7 +120,7 @@ public class MainLayout extends VerticalLayout {
 
                     retainCollectionsIfNotEmpty(allRecipes, ingredientRecipes);
                 }
-                grid.setItems(allRecipes);
+                addRecipesToGrid(grid, allRecipes);
 
             } catch (RecipeNotFoundException | NotNumberException e) {
                 grid.setItems(new ArrayList<>());
@@ -139,7 +139,7 @@ public class MainLayout extends VerticalLayout {
         grid.removeColumnByKey("ingredients");
         grid.removeColumnByKey("ingredientsAmount");
         grid.removeColumnByKey("id");
-        grid.setColumns("name", "description", "calories");
+        grid.setColumns("name", "description", "calories", "recipeCategory");
 
         grid.addItemClickListener(click -> {
             RecipeView recipeView = new RecipeView(recipeService, ingredientService, click.getItem().getId());
@@ -163,8 +163,15 @@ public class MainLayout extends VerticalLayout {
     private void retainCollectionsIfNotEmpty(List<Recipe> containingAll, List<Recipe> newElements) {
         if (!containingAll.isEmpty()) {
             containingAll.retainAll(newElements);
-        } else if(!newElements.isEmpty()) {
+        } else if (!newElements.isEmpty()) {
             containingAll.addAll(newElements);
-        }
+        } else
+            containingAll.add(new Recipe());
+    }
+
+    private void addRecipesToGrid(Grid<Recipe> grid, List<Recipe> recipes) throws RecipeNotFoundException {
+        if (recipes.isEmpty())
+            throw new RecipeNotFoundException();
+        grid.setItems(recipes);
     }
 }
