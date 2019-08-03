@@ -139,12 +139,15 @@ public class IngredientManager extends VerticalLayout {
                     dialog.open();
                     TextField nameField = new TextField();
                     nameField.setLabel("ingredient name");
+                    nameField.setValue(ingredient.getName());
 
                     ComboBox<MeasurementUnit> unitComboBox = new ComboBox<>("measurment unit");
                     unitComboBox.setItems(MeasurementUnit.values());
+                    unitComboBox.setValue(ingredient.getUnit());
 
                     ComboBox<IngredientCategory> ingredientCategoryComboBox = new ComboBox<>("ingredient category");
                     ingredientCategoryComboBox.setItems(IngredientCategory.values());
+                    ingredientCategoryComboBox.setValue(ingredient.getIngredientCategory());
 
                     Button confirmButton = new Button("Edit ingredient", event -> {
 
@@ -154,7 +157,7 @@ public class IngredientManager extends VerticalLayout {
                         editIngredient(ingredient);
                         Notification notification = new Notification(
                                 "Ingredient edited in database", 3000,
-                                Notification.Position.TOP_START);
+                                Notification.Position.MIDDLE);
                         notification.open();
 
                         dialog.close();
@@ -162,7 +165,7 @@ public class IngredientManager extends VerticalLayout {
                     Button cancelButton = new Button("Cancel", event -> {
                         Notification notification = new Notification(
                                 "Ingredient without changes", 3000,
-                                Notification.Position.TOP_START);
+                                Notification.Position.MIDDLE);
                         notification.open();
                         dialog.close();
                     });
