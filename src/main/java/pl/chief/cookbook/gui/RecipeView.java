@@ -10,6 +10,7 @@ import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 import pl.chief.cookbook.service.RecipeService;
 
+import java.awt.*;
 import java.util.List;
 
 
@@ -24,6 +25,8 @@ public class RecipeView extends VerticalLayout {
         nameLabel.getStyle().set("font-weight", "bold");
         Label descriptionLabel = new Label(recipe.getDescription());
         Grid recipeIngredientsTable = new Grid(Ingredient.class);
+        Label caloriesLabel = new Label("Sum of calories: " + String.valueOf(recipe.getCalories()));
+
 
         List<Ingredient> listOfIngredientsInRecipe = ingredientService.findIngredientsByRecipe(recipe);
 
@@ -38,7 +41,7 @@ public class RecipeView extends VerticalLayout {
                 .setHeader("Amount");
         recipeIngredientsTable.setHeightByRows(true);
 
-        add(nameLabel, descriptionLabel, recipeIngredientsTable);
+        add(nameLabel, descriptionLabel, recipeIngredientsTable, caloriesLabel);
 
     }
 }

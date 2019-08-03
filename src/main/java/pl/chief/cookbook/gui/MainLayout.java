@@ -5,8 +5,10 @@ import com.vaadin.flow.component.applayout.AppLayoutMenu;
 import com.vaadin.flow.component.applayout.AppLayoutMenuItem;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.NativeButton;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -146,9 +148,15 @@ public class MainLayout extends VerticalLayout {
         grid.setColumns("name", "description", "calories");
 
         grid.addItemClickListener(click -> {
-            RecipeView recipeView = new RecipeView(recipeService, ingredientService, click.getItem().getId()
-            );
-            //Tutaj dawcio dzialasz
+            RecipeView recipeView = new RecipeView(recipeService, ingredientService, click.getItem().getId());
+            Dialog dialog = new Dialog();
+            dialog.setWidth("1000px");
+            dialog.setHeight("500px");
+            dialog.open();
+            Button cancelButton = new Button("Close", event -> {
+                dialog.close();
+            });
+            dialog.add(recipeView, cancelButton);
         });
         table.add(grid);
 

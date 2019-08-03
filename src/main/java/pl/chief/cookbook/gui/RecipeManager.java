@@ -18,7 +18,6 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
-import javafx.beans.binding.DoubleBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;

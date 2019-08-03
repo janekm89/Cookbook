@@ -67,8 +67,8 @@ public class IngredientManager extends VerticalLayout {
         ingredientGrid.setItems(ingredientService.findAllIngredients());
         ingredientGrid.removeColumnByKey("recipes");
         ingredientGrid.setColumns("name", "unit", "ingredientCategory");
-        ingredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("remove");
-        ingredientGrid.addColumn(new ComponentRenderer<>(this::buildEditButton)).setHeader("edit");
+        ingredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("Remove");
+        ingredientGrid.addColumn(new ComponentRenderer<>(this::buildEditButton)).setHeader("Edit");
         ingredientGrid.getColumns()
                 .forEach(column -> column.setWidth("250px"));
         ingredientGrid.setHeightFull();
@@ -107,13 +107,10 @@ public class IngredientManager extends VerticalLayout {
 
         appLayout.setContent(layoutContent);
         add(appLayout);
-
-
     }
 
-
     private Button buildDeleteButton(Ingredient ingredient) {
-        Button button = new Button("remove");
+        Button button = new Button("Remove");
 
         button.addClickListener(
                 buttonClickEvent -> {
@@ -134,7 +131,7 @@ public class IngredientManager extends VerticalLayout {
     }
 
     private Button buildEditButton(Ingredient ingredient) {
-        Button button = new Button("edit");
+        Button button = new Button("Edit");
 
         button.addClickListener(
                 buttonClickEvent -> {
@@ -149,29 +146,27 @@ public class IngredientManager extends VerticalLayout {
                     ComboBox<IngredientCategory> ingredientCategoryComboBox = new ComboBox<>("ingredient category");
                     ingredientCategoryComboBox.setItems(IngredientCategory.values());
 
-//                    ingredient.setName(nameField.getValue());
-//                    ingredient.setUnit(unitComboBox.getValue());
-//                    ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
-//                    dialog.setCloseOnEsc(false);
-//                    dialog.setCloseOnOutsideClick(false);
-
-                    Label messageLabel = new Label();
-
-                    NativeButton confirmButton = new NativeButton("Edit ingredient", event -> {
+                    Button confirmButton = new Button("Edit ingredient", event -> {
 
                         ingredient.setName(nameField.getValue());
                         ingredient.setUnit(unitComboBox.getValue());
                         ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
                         editIngredient(ingredient);
-                        messageLabel.setText("Ingredient edited!");
+                        Notification notification = new Notification(
+                                "Ingredient edited in database", 3000,
+                                Notification.Position.TOP_START);
+                        notification.open();
+
                         dialog.close();
                     });
-                    NativeButton cancelButton = new NativeButton("Cancel", event -> {
-                        messageLabel.setText("Cancelled...");
+                    Button cancelButton = new Button("Cancel", event -> {
+                        Notification notification = new Notification(
+                                "Ingredient without changes", 3000,
+                                Notification.Position.TOP_START);
+                        notification.open();
                         dialog.close();
                     });
-                    //dialog.add(confirmButton, cancelButton);
-                    //dialog.add(nameField, unitComboBox,  ingredientCategoryComboBox, confirmButton, cancelButton);
+
                     dialog.add(nameField, unitComboBox, ingredientCategoryComboBox, confirmButton, cancelButton);
 
                 });
