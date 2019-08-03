@@ -13,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
 import pl.chief.cookbook.builder.IngredientBuilder;
 import pl.chief.cookbook.builder.RecipeBuilder;
+import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.MeasurementUnit;
 import pl.chief.cookbook.features.RecipeCategory;
@@ -95,9 +96,14 @@ public class RecipeServiceTest {
 
     @Test
     public void shouldAddRecipe() {
-        recipeService.addRecipe(recipe);
+        try {
+            recipeService.addRecipe(recipe);
+
         recipeService.addRecipe(recipe2);
         recipeService.addRecipe(recipe3);
+        } catch (NotNumberException e) {
+            e.printStackTrace();
+        }
     }
 
 

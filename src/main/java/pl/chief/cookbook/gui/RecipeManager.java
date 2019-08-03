@@ -19,8 +19,10 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
+import javafx.beans.binding.DoubleBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
@@ -127,7 +129,6 @@ public class RecipeManager extends VerticalLayout {
         });
 
         Button addRecipe = new Button("create recipe");
-
         addRecipe.addClickListener(
                 buttonClickEvent -> {
                     Recipe recipe = new Recipe();
@@ -137,7 +138,11 @@ public class RecipeManager extends VerticalLayout {
                     recipe.setCalories(caloriesField.getValue().intValue());
                     recipe.setIngredientsAmount(selectedIngredientAmount);
 
-                    recipeService.addRecipe(recipe);
+                    try {
+                        recipeService.addRecipe(recipe);
+                    } catch (NotNumberException e) {
+                        e.printStackTrace();
+                    }
                     recipeGrid.setItems(recipeService.findAllRecipes());
 
                     Notification notification = new Notification(
