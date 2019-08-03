@@ -10,11 +10,11 @@ import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 import pl.chief.cookbook.service.RecipeService;
 
+import java.util.List;
+
 
 @Route("recipe")
 public class RecipeView extends VerticalLayout {
-
-
 
 
     @Autowired
@@ -25,6 +25,8 @@ public class RecipeView extends VerticalLayout {
         Label descriptionLabel = new Label(recipe.getDescription());
         Grid recipeIngredientsTable = new Grid(Ingredient.class);
 
+        List<Ingredient> listOfIngredientsInRecipe = ingredientService.findIngredientsByRecipe(recipe);
+
         recipeIngredientsTable.setItems(ingredientService.findIngredientsByRecipe(recipe));
         recipeIngredientsTable.removeColumnByKey("recipes");
         recipeIngredientsTable.removeColumnByKey("ingredientCategory");
@@ -32,22 +34,11 @@ public class RecipeView extends VerticalLayout {
         recipeIngredientsTable.setColumns("name", "unit");
 
         recipeIngredientsTable.addColumn(o -> ingredientService
-                        .findIngredientAmountByIngredientIdAndRecipeId(1, recipe.getId()))
-                        .setHeader("Amount");
+                .findIngredientAmountByIngredientIdAndRecipeId(listOfIngredientsInRecipe.listIterator().next().getId(), recipe.getId()))
+                .setHeader("Amount");
         recipeIngredientsTable.setHeightByRows(true);
 
         add(nameLabel, descriptionLabel, recipeIngredientsTable);
 
     }
-
-
-/*
-
-   private Grid.Column IngredientAmountColumn(int ingrId, int recipeId){
-       Grid.Column column = new Grid.Column()
-
-
-    }
-*/
-
 }

@@ -31,8 +31,13 @@ public class IngredientManager extends VerticalLayout {
     IngredientService ingredientService;
 
     IngredientManager(IngredientService ingredientService) {
+        /*Image img = new Image(
+                new StreamResource("log",
+                        () -> IngredientManager.class.getResourceAsStream(ImagePath.LOGO)),
+                "Cookbook Logo");*/
 
-        Image logo = new Image( ImagePath.LOGO, "logo");
+
+        Image logo = new Image(ImagePath.LOGO, "logo");
         logo.setHeight("100px");
 
         AppLayout appLayout = new AppLayout();
@@ -63,6 +68,7 @@ public class IngredientManager extends VerticalLayout {
         ingredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("remove");
         ingredientGrid.getColumns()
                 .forEach(column -> column.setWidth("250px"));
+        ingredientGrid.setHeightFull();
 
         Button button = new Button("Add");
 
@@ -94,6 +100,7 @@ public class IngredientManager extends VerticalLayout {
     //    add(ingredientEditor, ingredientGrid);
         VerticalLayout layoutContent = new VerticalLayout();
         layoutContent.add(ingredientEditor, ingredientGrid);
+        layoutContent.setHeightFull();
 
         appLayout.setContent(layoutContent);
         add(appLayout);

@@ -40,6 +40,10 @@ public class IngredientService {
         return ingredientRepository.findByName(name).orElseThrow(IngredientNotFoundException::new);
     }
 
+    public Ingredient findIngredientById(int id) {
+        return ingredientRepository.findById(id).orElseThrow(IngredientNotFoundException::new);
+    }
+
     public List<Ingredient> findIngredientsByCategory(IngredientCategory ingredientCategory) {
         return ingredientRepository.findByIngredientCategory(ingredientCategory);
     }
