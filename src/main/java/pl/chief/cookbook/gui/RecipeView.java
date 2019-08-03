@@ -22,8 +22,10 @@ public class RecipeView extends VerticalLayout {
         Recipe recipe = recipeService.findRecipeById(recipeId);
         Label nameLabel = new Label(recipe.getName());
         nameLabel.getStyle().set("font-weight", "bold");
+
         Label descriptionLabel = new Label(recipe.getDescription());
         Grid recipeIngredientsTable = new Grid(Ingredient.class);
+
 
         List<Ingredient> listOfIngredientsInRecipe = ingredientService.findIngredientsByRecipe(recipe);
 
@@ -37,6 +39,7 @@ public class RecipeView extends VerticalLayout {
                 .findIngredientAmountByIngredientIdAndRecipeId(listOfIngredientsInRecipe.listIterator().next().getId(), recipe.getId()))
                 .setHeader("Amount");
         recipeIngredientsTable.setHeightByRows(true);
+
 
         add(nameLabel, descriptionLabel, recipeIngredientsTable);
 

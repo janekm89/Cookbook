@@ -94,7 +94,7 @@ public class MainLayout extends VerticalLayout {
             try {
                 if (recipeCategoryComboBox.getValue() != null) {
                     categoryRecipes = recipeService.findByCategory(recipeCategoryComboBox.getValue());
-                    allRecipes.addAll(categoryRecipes);
+                    retainCollectionsIfNotEmpty(allRecipes, categoryRecipes);
                 }
                 if (!recipeNameTextField.getValue().isEmpty()) {
                     nameRecipes = recipeService.findRecipeByName("%" + recipeNameTextField.getValue() + "%");
@@ -155,7 +155,7 @@ public class MainLayout extends VerticalLayout {
     private void retainCollectionsIfNotEmpty(List<Recipe> containingAll, List<Recipe> newElements) {
         if (!containingAll.isEmpty()) {
             containingAll.retainAll(newElements);
-        } else {
+        } else if(!newElements.isEmpty()) {
             containingAll.addAll(newElements);
         }
     }
