@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import pl.chief.cookbook.features.IngredientCategory;
+import pl.chief.cookbook.features.MeasurementUnit;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 
@@ -21,8 +22,12 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Integer>
 
     List<Ingredient> findByRecipes(Recipe recipe);
 
+
     @Query(value = "select name from Ingredient order by name")
     List<String> findAllIngredientNames();
+
+    @Query(value = "select unit from Ingredient where name = :name")
+    MeasurementUnit findUnitByIngredientName(@Param(value = "name") String name);
 
     @Query(value = "select name from Ingredient where ingredientCategory = :category order by name")
     List<String> findAllIngredientNamesByCategory(@Param(value = "category") IngredientCategory category);

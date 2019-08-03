@@ -6,6 +6,7 @@ import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.exception.IngredientNotFoundException;
 import pl.chief.cookbook.exception.WrongNameException;
 import pl.chief.cookbook.features.IngredientCategory;
+import pl.chief.cookbook.features.MeasurementUnit;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.repository.IngredientRepository;
@@ -85,5 +86,9 @@ public class IngredientService {
 
     public List<String> findAllIngredientNamesByIngredientCategory(IngredientCategory ingredientCategory){
         return ingredientRepository.findAllIngredientNamesByCategory(ingredientCategory);
+    }
+
+    public MeasurementUnit findUnitByIngredientName(String name){
+        return ingredientRepository.findUnitByIngredientName(name);
     }
 }

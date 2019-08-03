@@ -10,6 +10,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -17,6 +18,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
+import javafx.beans.binding.DoubleBinding;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;
@@ -26,7 +28,9 @@ import pl.chief.cookbook.service.RecipeService;
 import pl.chief.cookbook.util.ImagePath;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Route("recipe-manager")
@@ -65,6 +69,7 @@ public class RecipeManager extends VerticalLayout {
         recipeCategoryComboBox.setItems(RecipeCategory.values());
 
         NumberField caloriesField = new NumberField("Calories");
+
         caloriesField.setValue(10d);
         caloriesField.setMin(0);
         caloriesField.setMax(500);
@@ -79,24 +84,40 @@ public class RecipeManager extends VerticalLayout {
 
 //  Adding ingredients
 
-        ComboBox<String> ingredientBox = new ComboBox<>("Choose ingredient to add");
+        ComboBox<String> ingredientBox = new ComboBox<>("choose ingredient to add");
         List<Ingredient> selectedIngredientList = new ArrayList<>();
+        Map<Integer, Double> selectedIngredientAmount = new HashMap<>();
         Grid<Ingredient> selectedIngredientGrid = new Grid<>(Ingredient.class);
+
+
+        Label selectedIngredientLabel = new Label("current selection:");
+
+        TextField amountBox = new TextField("amount");
 
 
         ingredientBox.setItems(ingredientService.findAllIngredientNames());
 
         selectedIngredientGrid.removeColumnByKey("recipes");
         selectedIngredientGrid.setColumns("name", "unit", "ingredientCategory");
-        selectedIngredientGrid.setWidth("50%");
-      //  selectedIngredientGrid.setHeightFull();
+        selectedIngredientGrid.addColumn(ingredient -> selectedIngredientAmount.get(ingredient.getId())).setHeader("Amount");
+        selectedIngredientGrid.setWidth("80%");
+        selectedIngredientGrid.setHeightByRows(true);
 
-     //   selectedIngredientList.add(ingredientService.findIngredientById(2));
+        ingredientBox.addValueChangeListener(event -> {
+            String ingredientName = ingredientBox.getValue();
+            String unitName = ingredientService.findUnitByIngredientName(ingredientName).name().toLowerCase();
+            amountBox.setSuffixComponent(new Span(unitName));
+        });
 
         Button addIngredientButton = new Button("add ingredient");
         addIngredientButton.addClickListener(buttonClickEvent -> {
-            selectedIngredientList.add(ingredientService.findIngredientByName(ingredientBox.getValue()));
+            Ingredient selectedIngredient = ingredientService.findIngredientByName(ingredientBox.getValue());
+            Double amount = Double.parseDouble(amountBox.getValue());
+            selectedIngredientList.add(selectedIngredient);
+            selectedIngredientAmount.put(selectedIngredient.getId(), amount);
             selectedIngredientGrid.setItems(selectedIngredientList);
+
+
             Notification notification = new Notification(
                     "Ingredient added", 3000,
                     Notification.Position.TOP_START);
@@ -104,21 +125,32 @@ public class RecipeManager extends VerticalLayout {
 
         });
 
-        Label selectedIngredientLabel = new Label("Current selection:");
-
-
-
-   /*
-        Button addIngredientButton = new Button("add ingredient");
-
-        */
-
-
         Button addRecipe = new Button("create recipe");
+        addRecipe.addClickListener(
+                buttonClickEvent -> {
+                    Recipe recipe = new Recipe();
+                    recipe.setName(nameField.getValue());
+                    recipe.setDescription(descriptionField.getValue());
+                    recipe.setRecipeCategory(recipeCategoryComboBox.getValue());
+                    recipe.setCalories(caloriesField.getValue().intValue());
+                    recipe.setIngredientsAmount(selectedIngredientAmount);
+
+                    recipeService.addRecipe(recipe);
+
+                    Notification notification = new Notification(
+                            "Recipe sucessfully added to database", 3000,
+                            Notification.Position.TOP_START);
+                    notification.open();
+                });
+
+
+        HorizontalLayout ingredientSelectorBar = new HorizontalLayout();
+        ingredientSelectorBar.add(ingredientBox, amountBox, addIngredientButton);
+        ingredientSelectorBar.setAlignItems(Alignment.END);
 
 
         VerticalLayout ingredientSelector = new VerticalLayout();
-        ingredientSelector.add(ingredientBox, addIngredientButton, selectedIngredientLabel, selectedIngredientGrid);
+        ingredientSelector.add(ingredientSelectorBar, selectedIngredientLabel, selectedIngredientGrid);
 
         VerticalLayout layoutContent = new VerticalLayout();
         layoutContent.add(recipeEditor, new Hr(), ingredientSelector, new Hr(), addRecipe);
@@ -126,7 +158,8 @@ public class RecipeManager extends VerticalLayout {
 
         appLayout.setContent(layoutContent);
         add(appLayout);
-        // add( layoutContent);
+
+
     }
 }
 
