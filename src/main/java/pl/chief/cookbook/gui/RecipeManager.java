@@ -17,9 +17,10 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
-import javafx.beans.binding.DoubleBinding;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
@@ -126,6 +127,7 @@ public class RecipeManager extends VerticalLayout {
         });
 
         Button addRecipe = new Button("create recipe");
+
         addRecipe.addClickListener(
                 buttonClickEvent -> {
                     Recipe recipe = new Recipe();
@@ -136,6 +138,7 @@ public class RecipeManager extends VerticalLayout {
                     recipe.setIngredientsAmount(selectedIngredientAmount);
 
                     recipeService.addRecipe(recipe);
+                    recipeGrid.setItems(recipeService.findAllRecipes());
 
                     Notification notification = new Notification(
                             "Recipe sucessfully added to database", 3000,
@@ -143,6 +146,16 @@ public class RecipeManager extends VerticalLayout {
                     notification.open();
                 });
 
+
+        Label recipeLabel = new Label("List of recipes:");
+        recipeLabel.getStyle().set("font-weight", "bold");
+        recipeGrid = new Grid<>(Recipe.class);
+        recipeGrid.setItems(recipeService.findAllRecipes());
+        recipeGrid.setColumns("name", "description", "calories", "recipeCategory");
+        recipeGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("remove");
+      /*  recipeGrid.removeColumnByKey("ingredients");
+        recipeGrid.removeColumnByKey("ingredientsAmount");
+        recipeGrid.removeColumnByKey("id");*/
 
         HorizontalLayout ingredientSelectorBar = new HorizontalLayout();
         ingredientSelectorBar.add(ingredientBox, amountBox, addIngredientButton);
@@ -152,8 +165,13 @@ public class RecipeManager extends VerticalLayout {
         VerticalLayout ingredientSelector = new VerticalLayout();
         ingredientSelector.add(ingredientSelectorBar, selectedIngredientLabel, selectedIngredientGrid);
 
+        VerticalLayout addRecipeButtonLayout = new VerticalLayout();
+        addRecipeButtonLayout.add(addRecipe);
+        addRecipeButtonLayout.setAlignItems(Alignment.END);
+        addRecipeButtonLayout.setWidth("80%");
+
         VerticalLayout layoutContent = new VerticalLayout();
-        layoutContent.add(recipeEditor, new Hr(), ingredientSelector, new Hr(), addRecipe);
+        layoutContent.add(recipeEditor, new Hr(), ingredientSelector, addRecipeButtonLayout, new Hr(), recipeLabel, recipeGrid);
 
 
         appLayout.setContent(layoutContent);
@@ -161,27 +179,21 @@ public class RecipeManager extends VerticalLayout {
 
 
     }
-}
 
 
+    private Button buildDeleteButton(Recipe recipe) {
+        Button button = new Button("remove");
 
-/*
         button.addClickListener(
                 buttonClickEvent -> {
-                    Recipe recipe = new Recipe();
-
-                    recipe.setName(nameField.getValue());
-                    recipe.setDescription(descriptionField.getValue());
-                    recipe.setRecipeCategory(recipeCategoryComboBox.getValue());
-                    recipe.setCalories(caloriesField.  .getValue());
-                    ingredientService.addIngredient(ingredient);
-
-                    ingredientGrid.setItems(ingredientService.findAllIngredients());
-
-
+                    recipeService.deleteRecipe(recipe);
+                    recipeGrid.setItems(recipeService.findAllRecipes());
                     Notification notification = new Notification(
-                            "Ingredient sucessfully added to database", 3000,
+                            "Recipe sucessfully removed from database", 3000,
                             Notification.Position.TOP_START);
                     notification.open();
 
-                });*/
+                });
+        return button;
+    }
+}
