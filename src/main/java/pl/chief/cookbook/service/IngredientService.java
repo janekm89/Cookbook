@@ -1,6 +1,5 @@
 package pl.chief.cookbook.service;
 
-import org.apache.catalina.mapper.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
@@ -13,7 +12,6 @@ import pl.chief.cookbook.repository.IngredientRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static pl.chief.cookbook.validation.CommonTraitsValidator.validName;
 
@@ -75,5 +73,13 @@ public class IngredientService {
 
     public List<Ingredient> findIngredientsByRecipe(Recipe recipe){
         return ingredientRepository.findByRecipes(recipe);
+    }
+
+    public List<String> findAllIngredientNames(){
+        return ingredientRepository.findAllIngredientNames();
+    }
+
+    public List<String> findAllIngredientNamesByIngredientCategory(IngredientCategory ingredientCategory){
+        return ingredientRepository.findAllIngredientNamesByCategory(ingredientCategory);
     }
 }

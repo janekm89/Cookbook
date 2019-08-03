@@ -10,11 +10,11 @@ import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
@@ -48,6 +48,7 @@ public class MainLayout extends VerticalLayout {
 
 
         ComboBox<RecipeCategory> recipeCategoryComboBox = new ComboBox<>();
+        recipeCategoryComboBox.setPlaceholder("Recipe category");
         List<RecipeCategory> recipeCategories = Arrays.asList(RecipeCategory.values());
         recipeCategoryComboBox.setItems(recipeCategories);
         Button findByCategoryButton = new Button("Find by category");
@@ -96,15 +97,39 @@ public class MainLayout extends VerticalLayout {
         findByCaloriesLayout.setAlignItems(Alignment.CENTER);
 
 
+        ComboBox<String> ingredientComboBox = new ComboBox<>();
+        ingredientComboBox.setPlaceholder("Ingredient");
+        List<String> ingredientList = ingredientService.findAllIngredientNames();
+        ingredientComboBox.setItems(ingredientList);
+        Button findByIngredientButton = new Button("Find by Ingredient");
+        findByIngredientButton.addClickListener(click -> {
+            grid.setItems(recipeService.
+                    findAllRecipesContainingIngredient(ingredientService.
+                            findIngredientByName(ingredientComboBox.getValue())));
+        });
+        HorizontalLayout finByIngredientLayout = new HorizontalLayout();
+        finByIngredientLayout.add(ingredientComboBox, findByIngredientButton);
 
-        sidenav.add(findByCategoryLayout, finByNameLayout, finByDescLayout, findByCaloriesLayout);
+
+       // Tree<String> tree = new Tree<>("Ingredients");
+        TreeData<String> ingredientsTree = new TreeData<>();
+        ingredientsTree.addRootItems(IngredientCategory.values().toString());
+        for (IngredientCategory ingredientCategory : IngredientCategory.values()) {
+            for (String ingredientName : ingredientService.findAllIngredientNamesByIngredientCategory(ingredientCategory)) {
+                ingredientsTree.addItem(ingredientCategory.toString(), ingredientName);
+            }
+        }
+
+
+        HorizontalLayout ingredientsTreeLayout = new HorizontalLayout();
+
+        sidenav.add(findByCategoryLayout, finByNameLayout, finByDescLayout, findByCaloriesLayout, finByIngredientLayout);
         sidenav.setWidth("25%");
 
         grid.removeColumnByKey("ingredients");
         grid.removeColumnByKey("ingredientsAmount");
         grid.removeColumnByKey("id");
         grid.setColumns("name", "description", "calories");
-
 
         table.add(grid);
 
