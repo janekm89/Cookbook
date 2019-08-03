@@ -6,7 +6,7 @@ import static pl.chief.cookbook.validation.CommonTraitsValidator.validIfIsNumber
 
 public class NumberParser {
 
-    public static int parseIfIsNumber(String number) {
+    public static int parseIfIsNumber(String number) throws NotNumberException{
         if (!validIfIsNumber(number)) {
             throw new NotNumberException(number);
         } else {

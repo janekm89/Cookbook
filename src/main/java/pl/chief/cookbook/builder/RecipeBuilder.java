@@ -2,6 +2,7 @@ package pl.chief.cookbook.builder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
@@ -100,7 +101,7 @@ public class RecipeBuilder {
         recipe.setCalories(calories);
         return this;
     }
-    public RecipeBuilder withCalories(String calories) {
+    public RecipeBuilder withCalories(String calories)  throws NotNumberException {
         return this.withCalories(parseIfIsNumber(calories));
     }
 

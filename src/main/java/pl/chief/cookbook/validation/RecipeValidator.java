@@ -1,5 +1,6 @@
 package pl.chief.cookbook.validation;
 
+import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.exception.NotProperCalories;
 import pl.chief.cookbook.exception.WrongNameException;
 
@@ -9,12 +10,12 @@ import static pl.chief.cookbook.validation.CommonTraitsValidator.validName;
 public class RecipeValidator {
 
 
-    public static boolean validCalories(String calories) {
+    public static boolean validCalories(String calories) throws NotNumberException {
         int cal = parseIfIsNumber(calories);
         return cal > 0 && cal < 10000;
     }
 
-    public static boolean validateRecipeTraits(String recipeName, String recipeDesc, String calories) {
+    public static boolean validateRecipeTraits(String recipeName, String recipeDesc, String calories) throws NotNumberException{
         if (!validName(recipeName)) {
             throw new WrongNameException(recipeName);
         }

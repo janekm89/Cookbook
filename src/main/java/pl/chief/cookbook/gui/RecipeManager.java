@@ -20,6 +20,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import javafx.beans.binding.DoubleBinding;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
@@ -135,7 +136,11 @@ public class RecipeManager extends VerticalLayout {
                     recipe.setCalories(caloriesField.getValue().intValue());
                     recipe.setIngredientsAmount(selectedIngredientAmount);
 
-                    recipeService.addRecipe(recipe);
+                    try {
+                        recipeService.addRecipe(recipe);
+                    } catch (NotNumberException e) {
+                        e.printStackTrace();
+                    }
 
                     Notification notification = new Notification(
                             "Recipe sucessfully added to database", 3000,
