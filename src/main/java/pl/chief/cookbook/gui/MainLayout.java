@@ -11,16 +11,20 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.component.treegrid.TreeGrid;
 import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.gatanaso.MultiselectComboBox;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.RecipeCategory;
+import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 import pl.chief.cookbook.service.RecipeService;
 import pl.chief.cookbook.util.ImagePath;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -111,19 +115,47 @@ public class MainLayout extends VerticalLayout {
         finByIngredientLayout.add(ingredientComboBox, findByIngredientButton);
 
 
-       // Tree<String> tree = new Tree<>("Ingredients");
-        TreeData<String> ingredientsTree = new TreeData<>();
+        //TreeGrid usunac jesli nie uda sie uruchomic
+        TreeGrid<String> tree = new TreeGrid<>();
+        List<String> ingredientCategory = new ArrayList<>();
+        for (IngredientCategory category : IngredientCategory.values()) {
+            ingredientCategory.add(category.toString());
+        }
+        tree.setItems(ingredientCategory);
+
+       /*TreeData<String> ingredientsTree = new TreeData<>();
         ingredientsTree.addRootItems(IngredientCategory.values().toString());
         for (IngredientCategory ingredientCategory : IngredientCategory.values()) {
             for (String ingredientName : ingredientService.findAllIngredientNamesByIngredientCategory(ingredientCategory)) {
                 ingredientsTree.addItem(ingredientCategory.toString(), ingredientName);
             }
-        }
+        }*/
 
+        MultiselectComboBox<String> multiSelectIngredient = new MultiselectComboBox<>();
+        multiSelectIngredient.setItems(ingredientList);
+        multiSelectIngredient.setPlaceholder("Ingredients");
+        Button findByMultiIngredientButton = new Button("Find by Ingredient");
+        findByMultiIngredientButton.addClickListener(click -> {
+            List<Ingredient> ingredients = new ArrayList<>();
+            for (String ingrName : multiSelectIngredient.getSelectedItems()) {
+                ingredients.add(ingredientService.findIngredientByName(ingrName));
+            }
+            grid.setItems(recipeService.
+                    findRecipesWithIngredients(ingredients));
+        });
 
-        HorizontalLayout ingredientsTreeLayout = new HorizontalLayout();
+        HorizontalLayout findByMultiIngredients = new HorizontalLayout();
 
-        sidenav.add(findByCategoryLayout, finByNameLayout, finByDescLayout, findByCaloriesLayout, finByIngredientLayout);
+        findByMultiIngredients.add(multiSelectIngredient, findByMultiIngredientButton);
+
+        Button searchGeneralButton = new Button("Search");
+        searchGeneralButton.addClickListener(click ->{
+            
+        });
+
+        sidenav.add(findByCategoryLayout, finByNameLayout, finByDescLayout,
+                findByCaloriesLayout, finByIngredientLayout, findByMultiIngredients,
+                searchGeneralButton);
         sidenav.setWidth("25%");
 
         grid.removeColumnByKey("ingredients");

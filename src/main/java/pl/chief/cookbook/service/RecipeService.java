@@ -22,10 +22,9 @@ public class RecipeService {
 
 
     public void addRecipe(Recipe recipe) {
-        if (recipeRepository.findByName(recipe.getName()).isPresent()){
+        if (recipeRepository.findByName(recipe.getName()).isPresent()) {
             throw new EntityAlreadyExistException(recipe.getName());
-        }
-        else if(validateRecipeTraits(recipe.getName(), recipe.getDescription(), String.valueOf(recipe.getCalories()))){
+        } else if (validateRecipeTraits(recipe.getName(), recipe.getDescription(), String.valueOf(recipe.getCalories()))) {
             recipeRepository.save(recipe);
         }
     }
@@ -38,7 +37,7 @@ public class RecipeService {
         return recipeRepository.findByNameLike(name);
     }
 
-    public List<Recipe> findRecipeByDescription(String description){
+    public List<Recipe> findRecipeByDescription(String description) {
         return recipeRepository.findByDescriptionLike(description);
     }
 
@@ -47,7 +46,7 @@ public class RecipeService {
         return recipeRepository.findById(recipeId).orElseThrow(RecipeNotFoundException::new);
     }
 
-    public List<Recipe> findByCategory(RecipeCategory recipeCategory){
+    public List<Recipe> findByCategory(RecipeCategory recipeCategory) {
         return recipeRepository.findByRecipeCategory(recipeCategory);
     }
 
@@ -68,7 +67,11 @@ public class RecipeService {
 
     public List<Recipe> findRecipesWithIngredients(Collection<Ingredient> ingredients) {
         List<Integer> ingredientIds = ingredients.stream().map(Ingredient::getId).collect(Collectors.toList());
-        return new ArrayList<>(recipeRepository.findByIngredients(ingredientIds, ingredientIds.size()));
+        List<Recipe> recipes = new ArrayList<>();
+        recipes.addAll(recipeRepository.findByIngredients(ingredientIds, ingredientIds.size()));
+        if (recipes.size() == 0)
+            throw new RecipeNotFoundException(ingredientIds);
+        return recipes;
     }
 
 
