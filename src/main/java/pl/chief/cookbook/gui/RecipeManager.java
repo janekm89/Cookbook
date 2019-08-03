@@ -6,6 +6,7 @@ import com.vaadin.flow.component.applayout.AppLayoutMenu;
 import com.vaadin.flow.component.applayout.AppLayoutMenuItem;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Hr;
 import com.vaadin.flow.component.html.Image;
@@ -99,8 +100,9 @@ public class RecipeManager extends VerticalLayout {
         ingredientBox.setItems(ingredientService.findAllIngredientNames());
 
         selectedIngredientGrid.removeColumnByKey("recipes");
-        selectedIngredientGrid.setColumns("name", "unit", "ingredientCategory");
+        selectedIngredientGrid.setColumns("name", "ingredientCategory");
         selectedIngredientGrid.addColumn(ingredient -> selectedIngredientAmount.get(ingredient.getId())).setHeader("Amount");
+        selectedIngredientGrid.addColumn(Ingredient::getUnit).setHeader("Unit");
         selectedIngredientGrid.setWidth("80%");
         selectedIngredientGrid.setHeightByRows(true);
 
@@ -153,9 +155,17 @@ public class RecipeManager extends VerticalLayout {
         recipeGrid.setItems(recipeService.findAllRecipes());
         recipeGrid.setColumns("name", "description", "calories", "recipeCategory");
         recipeGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("remove");
-      /*  recipeGrid.removeColumnByKey("ingredients");
-        recipeGrid.removeColumnByKey("ingredientsAmount");
-        recipeGrid.removeColumnByKey("id");*/
+        recipeGrid.setWidth("80%");
+        recipeGrid.addItemClickListener(event -> {
+                    int id = event.getItem().getId();
+                    Dialog dialog = new Dialog();
+                    dialog.open();
+                    RecipeEditor recipeEditor1 = new RecipeEditor(recipeService, recipeService.findRecipeById(id));
+                    dialog.add(recipeEditor1);
+                }
+
+        );
+
 
         HorizontalLayout ingredientSelectorBar = new HorizontalLayout();
         ingredientSelectorBar.add(ingredientBox, amountBox, addIngredientButton);
