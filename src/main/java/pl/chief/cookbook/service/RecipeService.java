@@ -3,6 +3,7 @@ package pl.chief.cookbook.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
+import pl.chief.cookbook.exception.IngredientNotFoundException;
 import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.exception.RecipeNotFoundException;
 import pl.chief.cookbook.features.RecipeCategory;
@@ -10,6 +11,7 @@ import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.repository.RecipeRepository;
 
+import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,19 @@ public class RecipeService {
         } else if (validateRecipeTraits(recipe.getName(), recipe.getDescription(), String.valueOf(recipe.getCalories()))) {
             recipeRepository.save(recipe);
         }
+    }
+
+
+    public boolean updateRecipe(Recipe recipe, int recipeId) throws RecipeNotFoundException {
+        Recipe existingRecipe = recipeRepository.findById(recipeId).orElseThrow(RecipeNotFoundException::new);
+        existingRecipe.setName(recipe.getName());
+        existingRecipe.setCalories(recipe.getCalories());
+        existingRecipe.setRecipeCategory(recipe.getRecipeCategory());
+        existingRecipe.setDescription(recipe.getDescription());
+        existingRecipe.setIngredients(recipe.getIngredients());
+        existingRecipe.setIngredientsAmount(recipe.getIngredientsAmount());
+        recipeRepository.save(existingRecipe);
+        return true;
     }
 
     public void deleteRecipe(Recipe recipe){
@@ -89,6 +104,9 @@ public class RecipeService {
     public List<Recipe> findRecipesWithIds(Collection<Integer> recipesIds) {
         return recipeRepository.findRecipesByIdIn(recipesIds);
     }
+
+
+
 
 
 }
