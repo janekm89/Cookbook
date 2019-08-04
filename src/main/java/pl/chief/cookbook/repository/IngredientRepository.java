@@ -35,4 +35,5 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Integer>
     @Query(nativeQuery = true, value = "select amount from recipe_ingredients where ingr_id =:ingredientId and recipe_id =:recipeId")
     double findIngredientAmountInRecipe(@Param(value = "ingredientId") int ingredientId,
                                         @Param(value = "recipeId") int recipeId);
+
 }

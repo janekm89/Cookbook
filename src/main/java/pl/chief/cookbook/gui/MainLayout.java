@@ -1,33 +1,25 @@
 package pl.chief.cookbook.gui;
 
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.AppLayoutMenu;
-import com.vaadin.flow.component.applayout.AppLayoutMenuItem;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.html.NativeButton;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.component.treegrid.TreeGrid;
-import com.vaadin.flow.data.provider.hierarchy.TreeData;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.gatanaso.MultiselectComboBox;
 import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.exception.RecipeNotFoundException;
-import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.RecipeCategory;
+import pl.chief.cookbook.gui.components.MiddleNotification;
+import pl.chief.cookbook.gui.layout.MenuLayout;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 import pl.chief.cookbook.service.RecipeService;
-import pl.chief.cookbook.util.ImagePath;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,110 +29,101 @@ import java.util.stream.Collectors;
 
 @Route("index")
 public class MainLayout extends VerticalLayout {
+    private VerticalLayout sidenav;
+    private Grid<Recipe> grid;
+    private TextField recipeNameTextField;
+    private TextField recipeDescriptionTextField;
+    private TextField caloriesMinField;
+    private TextField caloriesMaxField;
+    private MultiselectComboBox<String> multiSelectIngredient;
+
+    private ComboBox<RecipeCategory> recipeCategoryComboBox;
+
 
     @Autowired
-    MainLayout(RecipeService recipeService, IngredientService ingredientService) {
-        Image logo = new Image(ImagePath.LOGO, "logo");
+    public MainLayout(RecipeService recipeService, IngredientService ingredientService) {
+        sidenav = new VerticalLayout();
         AppLayout appLayout = new AppLayout();
-        VerticalLayout sidenav = new VerticalLayout();
-        Grid<Recipe> grid = new Grid<>(Recipe.class);
+        MenuLayout menuLayout = new MenuLayout(appLayout);
         VerticalLayout table = new VerticalLayout();
         HorizontalLayout content = new HorizontalLayout();
 
-        logo.setHeight("100px");
-        appLayout.setBranding(logo);
-        AppLayoutMenu menu = appLayout.createMenu();
-        menu.addMenuItems(
-                new AppLayoutMenuItem(VaadinIcon.CROSS_CUTLERY.create(), "Manage ingredients", "ingredient-manager"),
-                new AppLayoutMenuItem(VaadinIcon.SITEMAP.create(), "Manage recipes", "recipe-manager"),
-                new AppLayoutMenuItem(VaadinIcon.SEARCH.create(), "Find recipes", "index")
-        );
+        setRecipesGridProperties(recipeService, ingredientService);
+        createSearchFields(ingredientService);
+        setSideNavProperties(createSearchButton(recipeService, ingredientService));
 
+        table.add(grid);
+        content.add(sidenav, table);
+        appLayout.setContent(content);
+        add(appLayout);
+    }
 
-        ComboBox<RecipeCategory> recipeCategoryComboBox = new ComboBox<>();
-        recipeCategoryComboBox.setPlaceholder("Recipe category");
-        List<RecipeCategory> recipeCategories = Arrays.asList(RecipeCategory.values());
-        recipeCategoryComboBox.setItems(recipeCategories);
-
-
-        TextField recipeNameTextField = new TextField();
-        recipeNameTextField.setPlaceholder("recipe Name");
-
-        TextField recipeDescriptionTextField = new TextField();
-        recipeDescriptionTextField.setPlaceholder("recipe Description");
-
-        TextField caloriesMinField = new TextField();
-        caloriesMinField.setPlaceholder("Calories minimum");
-        caloriesMinField.setMaxWidth("170px");
-        TextField caloriesMaxField = new TextField();
-        caloriesMaxField.setPlaceholder("Calories maximum");
-        caloriesMaxField.setMaxWidth("170px");
-
-        List<String> ingredientList = ingredientService.findAllIngredientNames();
-        MultiselectComboBox<String> multiSelectIngredient = new MultiselectComboBox<>();
-        multiSelectIngredient.setItems(ingredientList);
-        multiSelectIngredient.setPlaceholder("Ingredients");
-        Button searchGeneralButton = new Button("Search");
-
-        searchGeneralButton.addClickListener(click -> {
-            List<Recipe> allRecipes = new ArrayList<>();
-            List<Recipe> categoryRecipes;
-            List<Recipe> nameRecipes;
-            List<Recipe> descriptionRecipes;
-            List<Recipe> caloriesRecipes;
-            List<Recipe> ingredientRecipes;
-            Notification notification = new Notification();
-            notification.setDuration(5000);
-            notification.setPosition(Notification.Position.MIDDLE);
-
-            try {
-                if (recipeCategoryComboBox.getValue() != null) {
-                    categoryRecipes = recipeService.findByCategory(recipeCategoryComboBox.getValue());
-                    retainCollectionsIfNotEmpty(allRecipes, categoryRecipes);
-                }
-                if (!recipeNameTextField.getValue().isEmpty()) {
-                    nameRecipes = recipeService.findRecipeByName("%" + recipeNameTextField.getValue() + "%");
-                    retainCollectionsIfNotEmpty(allRecipes, nameRecipes);
-                }
-                if (!recipeDescriptionTextField.getValue().isEmpty()) {
-                    descriptionRecipes = recipeService.findRecipeByName("%" + recipeDescriptionTextField.getValue() + "%");
-                    retainCollectionsIfNotEmpty(allRecipes, descriptionRecipes);
-                }
-                if (!caloriesMinField.getValue().isEmpty() || !caloriesMaxField.getValue().isEmpty()) {
-                    caloriesRecipes = recipeService.findRecipesWithCaloriesIn(caloriesMinField.getValue(), caloriesMaxField.getValue());
-                    retainCollectionsIfNotEmpty(allRecipes, caloriesRecipes);
-                }
-                if (!multiSelectIngredient.getSelectedItems().isEmpty()) {
-                    List<Ingredient> ingredients = new ArrayList<>();
-                    for (String ingrName : multiSelectIngredient.getSelectedItems()) {
-                        ingredients.add(ingredientService.findIngredientByName(ingrName));
-                    }
-                    ingredientRecipes = recipeService
-                            .findRecipesWithIds(recipeService.findRecipesIdWithIngredients(ingredients));
-
-                    retainCollectionsIfNotEmpty(allRecipes, ingredientRecipes);
-                }
-                addRecipesToGrid(grid, allRecipes);
-
-            } catch (RecipeNotFoundException | NotNumberException e) {
-                grid.setItems(new ArrayList<>());
-                notification.setText(e.getMessage());
-                notification.open();
-            }
-
-
-        });
-
+    private void setSideNavProperties(Button searchButton) {
         sidenav.add(recipeCategoryComboBox, recipeNameTextField, recipeDescriptionTextField,
                 caloriesMinField, caloriesMaxField, multiSelectIngredient,
-                searchGeneralButton);
+                searchButton);
         sidenav.setWidth("25%");
+    }
 
+
+    private void retainCollectionsIfNotEmpty(List<Recipe> containingAll, List<Recipe> newElements) {
+        if (!containingAll.isEmpty()) {
+            containingAll.retainAll(newElements);
+        } else if (!newElements.isEmpty()) {
+            containingAll.addAll(newElements);
+        } else
+            containingAll.add(new Recipe());
+    }
+
+    private void addRecipesToGrid(List<Recipe> recipes) throws RecipeNotFoundException {
+        if (recipes.isEmpty() || recipes.get(0).getName().isEmpty())
+            throw new RecipeNotFoundException();
+        grid.setItems(recipes);
+    }
+
+    private void searchRecipesByCategoryIfNeeded(List<Recipe> allRecipes, RecipeService recipeService) {
+        if (recipeCategoryComboBox.getValue() != null) {
+            retainCollectionsIfNotEmpty(allRecipes, recipeService.findByCategory(recipeCategoryComboBox.getValue()));
+        }
+    }
+
+    private void searchByNameFieldIfNeeded(List<Recipe> allRecipes, RecipeService recipeService) {
+        if (!recipeNameTextField.getValue().isEmpty()) {
+            retainCollectionsIfNotEmpty(allRecipes, recipeService.findRecipeByName("%" + recipeNameTextField.getValue() + "%"));
+        }
+    }
+
+    private void searchByDescriptionFieldIfNeeded(List<Recipe> allRecipes, RecipeService recipeService) {
+        if (!recipeDescriptionTextField.getValue().isEmpty()) {
+            retainCollectionsIfNotEmpty(allRecipes, recipeService.findRecipeByDescription("%" + recipeDescriptionTextField.getValue() + "%"));
+        }
+    }
+
+    private void searchByDoubleTextFieldIfNeeded(List<Recipe> allRecipes, RecipeService recipeService) throws NotNumberException {
+        if (!caloriesMinField.getValue().isEmpty() || !caloriesMaxField.getValue().isEmpty()) {
+            retainCollectionsIfNotEmpty(allRecipes, recipeService.findRecipesWithCaloriesIn(caloriesMinField.getValue(), caloriesMaxField.getValue()));
+        }
+    }
+
+    private void searchByMultiSelectIfNeeded(List<Recipe> allRecipes, RecipeService recipeService, IngredientService ingredientService) throws RecipeNotFoundException {
+        if (!multiSelectIngredient.getSelectedItems().isEmpty()) {
+            List<Ingredient> ingredients = multiSelectIngredient.getSelectedItems().stream()
+                    .map(ingredientService::findIngredientByName).collect(Collectors.toList());
+            retainCollectionsIfNotEmpty(allRecipes, recipeService
+                    .findRecipesWithIds(recipeService.findRecipesIdWithIngredients(ingredients)));
+        }
+    }
+
+    private void setRecipesGridProperties(RecipeService recipeService, IngredientService ingredientService) {
+        grid = new Grid<>(Recipe.class);
         grid.removeColumnByKey("ingredients");
         grid.removeColumnByKey("ingredientsAmount");
         grid.removeColumnByKey("id");
         grid.setColumns("name", "description", "calories", "recipeCategory");
+        addClickOnRecipeListener(recipeService, ingredientService);
+    }
 
+    private void addClickOnRecipeListener(RecipeService recipeService, IngredientService ingredientService) {
         grid.addItemClickListener(click -> {
             RecipeView recipeView = new RecipeView(recipeService, ingredientService, click.getItem().getId());
             Dialog dialog = new Dialog();
@@ -152,26 +135,48 @@ public class MainLayout extends VerticalLayout {
             });
             dialog.add(recipeView, cancelButton);
         });
-        table.add(grid);
-
-        content.add(sidenav, table);
-
-        appLayout.setContent(content);
-        add(appLayout);
     }
 
-    private void retainCollectionsIfNotEmpty(List<Recipe> containingAll, List<Recipe> newElements) {
-        if (!containingAll.isEmpty()) {
-            containingAll.retainAll(newElements);
-        } else if (!newElements.isEmpty()) {
-            containingAll.addAll(newElements);
-        } else
-            containingAll.add(new Recipe());
+    private Button createSearchButton(RecipeService recipeService, IngredientService ingredientService) {
+        Button button = new Button("Search");
+        button.addClickListener(click -> {
+            List<Recipe> allRecipes = new ArrayList<>();
+            MiddleNotification notification = new MiddleNotification();
+            try {
+                searchRecipesByCategoryIfNeeded(allRecipes, recipeService);
+                searchByNameFieldIfNeeded(allRecipes, recipeService);
+                searchByDescriptionFieldIfNeeded(allRecipes, recipeService);
+                searchByDoubleTextFieldIfNeeded(allRecipes, recipeService);
+                searchByMultiSelectIfNeeded(allRecipes, recipeService, ingredientService);
+                addRecipesToGrid(allRecipes);
+            } catch (RecipeNotFoundException | NotNumberException e) {
+                grid.setItems(new ArrayList<>());
+                notification.setText(e.getMessage());
+                notification.open();
+            }
+        });
+        button.setAutofocus(true);
+        return button;
     }
 
-    private void addRecipesToGrid(Grid<Recipe> grid, List<Recipe> recipes) throws RecipeNotFoundException {
-        if (recipes.isEmpty())
-            throw new RecipeNotFoundException();
-        grid.setItems(recipes);
+    private void createSearchFields(IngredientService ingredientService) {
+        recipeCategoryComboBox = new ComboBox<>();
+        recipeCategoryComboBox.setPlaceholder("Recipe category");
+        recipeCategoryComboBox.setItems(Arrays.asList(RecipeCategory.values()));
+
+        recipeNameTextField = new TextField();
+        recipeNameTextField.setPlaceholder("recipe Name");
+
+        recipeDescriptionTextField = new TextField();
+        recipeDescriptionTextField.setPlaceholder("recipe Description");
+
+        caloriesMinField = new TextField();
+        caloriesMinField.setPlaceholder("Calories minimum");
+        caloriesMaxField = new TextField();
+        caloriesMaxField.setPlaceholder("Calories maximum");
+
+        multiSelectIngredient = new MultiselectComboBox<>();
+        multiSelectIngredient.setItems(ingredientService.findAllIngredientNames());
+        multiSelectIngredient.setPlaceholder("Ingredients");
     }
 }
