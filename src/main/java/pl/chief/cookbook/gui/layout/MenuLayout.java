@@ -9,7 +9,7 @@ import pl.chief.cookbook.util.ImagePath;
 
 public class MenuLayout extends AppLayoutMenu {
 
-    public MenuLayout(AppLayout appLayout){
+    public MenuLayout(AppLayout appLayout) {
         Image logo = new Image(ImagePath.LOGO, "logo");
         logo.setHeight("100px");
         appLayout.setBranding(logo);
@@ -17,7 +17,7 @@ public class MenuLayout extends AppLayoutMenu {
         menu.addMenuItems(
                 new AppLayoutMenuItem(VaadinIcon.CROSS_CUTLERY.create(), "Manage ingredients", "ingredient-manager"),
                 new AppLayoutMenuItem(VaadinIcon.SITEMAP.create(), "Manage recipes", "recipe-manager"),
-                new AppLayoutMenuItem(VaadinIcon.SEARCH.create(), "Find recipes", "index")
+                new AppLayoutMenuItem(VaadinIcon.SEARCH.create(), "Find recipes", "")
         );
     }
 }

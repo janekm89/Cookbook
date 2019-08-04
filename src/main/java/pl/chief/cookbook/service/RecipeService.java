@@ -3,7 +3,6 @@ package pl.chief.cookbook.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
-import pl.chief.cookbook.exception.IngredientNotFoundException;
 import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.exception.RecipeNotFoundException;
 import pl.chief.cookbook.features.RecipeCategory;
@@ -11,7 +10,6 @@ import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.repository.RecipeRepository;
 
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.*;
 import java.util.stream.Collectors;
 

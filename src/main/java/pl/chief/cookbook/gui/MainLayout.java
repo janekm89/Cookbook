@@ -1,5 +1,6 @@
 package pl.chief.cookbook.gui;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-@Route("index")
+@Route("")
 public class MainLayout extends VerticalLayout {
     private VerticalLayout sidenav;
     private Grid<Recipe> grid;
@@ -36,8 +37,8 @@ public class MainLayout extends VerticalLayout {
     private TextField caloriesMinField;
     private TextField caloriesMaxField;
     private MultiselectComboBox<String> multiSelectIngredient;
-
     private ComboBox<RecipeCategory> recipeCategoryComboBox;
+    private boolean wasSearchAndIsEmpty;
 
 
     @Autowired
@@ -50,7 +51,7 @@ public class MainLayout extends VerticalLayout {
 
         setRecipesGridProperties(recipeService, ingredientService);
         createSearchFields(ingredientService);
-        setSideNavProperties(createSearchButton(recipeService, ingredientService));
+        setSideNavProperties(recipeService, ingredientService);
 
         table.add(grid);
         content.add(sidenav, table);
@@ -58,27 +59,48 @@ public class MainLayout extends VerticalLayout {
         add(appLayout);
     }
 
-    private void setSideNavProperties(Button searchButton) {
+    private void setSideNavProperties(RecipeService recipeService, IngredientService ingredientService) {
+        HorizontalLayout buttonLayout = new HorizontalLayout();
+        Button searchButton = createSearchButton(recipeService, ingredientService);
+        Button clearButton = createClearButton();
+        buttonLayout.add(searchButton, clearButton);
         sidenav.add(recipeCategoryComboBox, recipeNameTextField, recipeDescriptionTextField,
                 caloriesMinField, caloriesMaxField, multiSelectIngredient,
-                searchButton);
+                buttonLayout);
         sidenav.setWidth("25%");
+    }
+
+    private Button createClearButton() {
+        Button clearButton = new Button("Clear");
+        clearButton.addClickListener(click -> {
+            recipeCategoryComboBox.clear();
+            recipeNameTextField.clear();
+            recipeDescriptionTextField.clear();
+            caloriesMinField.clear();
+            caloriesMaxField.clear();
+            multiSelectIngredient.clear();
+        });
+
+        return clearButton;
     }
 
 
     private void retainCollectionsIfNotEmpty(List<Recipe> containingAll, List<Recipe> newElements) {
-        if (!containingAll.isEmpty()) {
+        if (!containingAll.isEmpty() && !newElements.isEmpty()) {
             containingAll.retainAll(newElements);
-        } else if (!newElements.isEmpty()) {
+        } else if (containingAll.isEmpty() && !newElements.isEmpty() && !wasSearchAndIsEmpty) {
             containingAll.addAll(newElements);
-        } else
-            containingAll.add(new Recipe());
+        } else if (!containingAll.isEmpty()) {
+            containingAll.clear();
+            wasSearchAndIsEmpty = true;
+        }
     }
 
     private void addRecipesToGrid(List<Recipe> recipes) throws RecipeNotFoundException {
         if (recipes.isEmpty() || recipes.get(0).getName().isEmpty())
             throw new RecipeNotFoundException();
-        grid.setItems(recipes);
+        if (!wasSearchAndIsEmpty)
+            grid.setItems(recipes);
     }
 
     private void searchRecipesByCategoryIfNeeded(List<Recipe> allRecipes, RecipeService recipeService) {
@@ -141,6 +163,7 @@ public class MainLayout extends VerticalLayout {
         Button button = new Button("Search");
         button.addClickListener(click -> {
             List<Recipe> allRecipes = new ArrayList<>();
+            wasSearchAndIsEmpty = false;
             MiddleNotification notification = new MiddleNotification();
             try {
                 searchRecipesByCategoryIfNeeded(allRecipes, recipeService);
@@ -155,9 +178,10 @@ public class MainLayout extends VerticalLayout {
                 notification.open();
             }
         });
-        button.setAutofocus(true);
+        button.addClickShortcut(Key.ENTER);
         return button;
     }
+
 
     private void createSearchFields(IngredientService ingredientService) {
         recipeCategoryComboBox = new ComboBox<>();
