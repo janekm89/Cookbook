@@ -1,15 +1,10 @@
 package pl.chief.cookbook.gui;
 
 import com.vaadin.flow.component.applayout.AppLayout;
-import com.vaadin.flow.component.applayout.AppLayoutMenu;
-import com.vaadin.flow.component.applayout.AppLayoutMenuItem;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Image;
-import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -18,81 +13,32 @@ import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.MeasurementUnit;
+import pl.chief.cookbook.gui.components.MiddleNotification;
+import pl.chief.cookbook.gui.layout.MenuLayout;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.service.IngredientService;
-import pl.chief.cookbook.util.ImagePath;
 
 
 @Route("ingredient-manager")
 public class IngredientManager extends VerticalLayout {
 
     private Grid<Ingredient> ingredientGrid;
+    private TextField nameField;
+    private ComboBox<MeasurementUnit> unitComboBox;
+    private ComboBox<IngredientCategory> ingredientCategoryComboBox;
+    private HorizontalLayout ingredientEditor;
 
     @Autowired
     IngredientService ingredientService;
 
     IngredientManager(IngredientService ingredientService) {
-           Image logo = new Image(ImagePath.LOGO, "logo");
-        logo.setHeight("100px");
-
         AppLayout appLayout = new AppLayout();
-        appLayout.setBranding(logo);
-        AppLayoutMenu menu = appLayout.createMenu();
-        menu.addMenuItems(
-                new AppLayoutMenuItem(VaadinIcon.CROSS_CUTLERY.create(), "Manage ingredients", "ingredient-manager"),
-                new AppLayoutMenuItem(VaadinIcon.SITEMAP.create(), "Manage recipes", "recipe-manager"),
-                new AppLayoutMenuItem(VaadinIcon.MENU.create(), "Find recipes", "index")
-        );
+        MenuLayout menuLayout = new MenuLayout(appLayout);
 
+        setFields();
+        createIngredientGrid(ingredientService);
+        setIngredientEditorLayout();
 
-        TextField nameField = new TextField();
-        nameField.setLabel("ingredient name");
-
-        ComboBox<MeasurementUnit> unitComboBox = new ComboBox<>("measurment unit");
-        unitComboBox.setItems(MeasurementUnit.values());
-
-        ComboBox<IngredientCategory> ingredientCategoryComboBox = new ComboBox<>("ingredient category");
-        ingredientCategoryComboBox.setItems(IngredientCategory.values());
-
-
-        ingredientGrid = new Grid<>(Ingredient.class);
-        ingredientGrid.setItems(ingredientService.findAllIngredients());
-        ingredientGrid.removeColumnByKey("recipes");
-        ingredientGrid.setColumns("name", "unit", "ingredientCategory");
-        ingredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("Remove");
-        ingredientGrid.addColumn(new ComponentRenderer<>(this::buildEditButton)).setHeader("Edit");
-        ingredientGrid.getColumns()
-                .forEach(column -> column.setWidth("250px"));
-        ingredientGrid.setHeightFull();
-
-        Button button = new Button("Add");
-
-        button.addClickListener(
-                buttonClickEvent -> {
-                    Ingredient ingredient = new Ingredient();
-
-                    ingredient.setName(nameField.getValue());
-                    ingredient.setUnit(unitComboBox.getValue());
-                    ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
-
-                    ingredientService.addIngredient(ingredient);
-
-                    ingredientGrid.setItems(ingredientService.findAllIngredients());
-
-
-                    Notification notification = new Notification(
-                            "Ingredient sucessfully added to database", 3000,
-                            Notification.Position.TOP_START);
-                    notification.open();
-
-                });
-
-
-        HorizontalLayout ingredientEditor = new HorizontalLayout();
-        ingredientEditor.add(nameField, unitComboBox, ingredientCategoryComboBox, button);
-        ingredientEditor.setVerticalComponentAlignment(Alignment.CENTER, button);
-
-        //    add(ingredientEditor, ingredientGrid);
         VerticalLayout layoutContent = new VerticalLayout();
         layoutContent.add(ingredientEditor, ingredientGrid);
         layoutContent.setHeightFull();
@@ -101,17 +47,22 @@ public class IngredientManager extends VerticalLayout {
         add(appLayout);
     }
 
+    private void setIngredientEditorLayout() {
+        ingredientEditor = new HorizontalLayout();
+        Button addButton = buildAddButton();
+        ingredientEditor.add(nameField, unitComboBox, ingredientCategoryComboBox, addButton);
+        ingredientEditor.setVerticalComponentAlignment(Alignment.CENTER, addButton);
+
+    }
+
     private Button buildDeleteButton(Ingredient ingredient) {
         Button button = new Button("Remove");
-
         button.addClickListener(
                 buttonClickEvent -> {
                     deleteIngredient(ingredient);
-                    Notification notification = new Notification(
-                            "Ingredient sucessfully removed from database", 3000,
-                            Notification.Position.TOP_START);
+                    MiddleNotification notification = new MiddleNotification();
+                    notification.setText("Ingredient successfully removed from database");
                     notification.open();
-
                 });
         return button;
     }
@@ -133,7 +84,7 @@ public class IngredientManager extends VerticalLayout {
                     nameField.setLabel("ingredient name");
                     nameField.setValue(ingredient.getName());
 
-                    ComboBox<MeasurementUnit> unitComboBox = new ComboBox<>("measurment unit");
+                    ComboBox<MeasurementUnit> unitComboBox = new ComboBox<>("measurement unit");
                     unitComboBox.setItems(MeasurementUnit.values());
                     unitComboBox.setValue(ingredient.getUnit());
 
@@ -141,36 +92,81 @@ public class IngredientManager extends VerticalLayout {
                     ingredientCategoryComboBox.setItems(IngredientCategory.values());
                     ingredientCategoryComboBox.setValue(ingredient.getIngredientCategory());
 
-                    Button confirmButton = new Button("Edit ingredient", event -> {
-
-                        ingredient.setName(nameField.getValue());
-                        ingredient.setUnit(unitComboBox.getValue());
-                        ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
-                        editIngredient(ingredient);
-                        Notification notification = new Notification(
-                                "Ingredient edited in database", 3000,
-                                Notification.Position.MIDDLE);
-                        notification.open();
-
-                        dialog.close();
-                    });
-                    Button cancelButton = new Button("Cancel", event -> {
-                        Notification notification = new Notification(
-                                "Ingredient without changes", 3000,
-                                Notification.Position.MIDDLE);
-                        notification.open();
-                        dialog.close();
-                    });
-
+                    Button confirmButton = buildEditButton(ingredient, nameField, unitComboBox, ingredientCategoryComboBox, dialog);
+                    Button cancelButton = buildCancelButton(dialog);
                     dialog.add(nameField, unitComboBox, ingredientCategoryComboBox, confirmButton, cancelButton);
 
                 });
         return button;
     }
 
+    private Button buildCancelButton(Dialog dialog) {
+        return new Button("Cancel", event -> {
+            MiddleNotification notification = new MiddleNotification();
+            notification.setText("Ingredient without changes");
+            notification.open();
+            dialog.close();
+        });
+    }
+
+    private Button buildEditButton(Ingredient ingredient, TextField nameField, ComboBox<MeasurementUnit> unitComboBox, ComboBox<IngredientCategory> ingredientCategoryComboBox, Dialog dialog) {
+        return new Button("Edit ingredient", event -> {
+
+            ingredient.setName(nameField.getValue());
+            ingredient.setUnit(unitComboBox.getValue());
+            ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
+            editIngredient(ingredient);
+            MiddleNotification notification = new MiddleNotification();
+            notification.setText("Ingredient edited in database");
+            notification.open();
+            dialog.close();
+        });
+    }
+
+    private Button buildAddButton() {
+        Button addButton = new Button("Add");
+
+        addButton.addClickListener(
+                buttonClickEvent -> {
+                    Ingredient ingredient = new Ingredient();
+                    ingredient.setName(nameField.getValue());
+                    ingredient.setUnit(unitComboBox.getValue());
+                    ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
+                    
+                    ingredientService.addIngredient(ingredient);
+                    ingredientGrid.setItems(ingredientService.findAllIngredients());
+
+                    MiddleNotification notification = new MiddleNotification();
+                    notification.setText("Ingredient successfully added to database");
+                    notification.open();
+                });
+        return addButton;
+    }
+
     private void editIngredient(Ingredient ingredient) {
         ingredientService.updateIngredient(ingredient, ingredient.getId());
         ingredientGrid.setItems(ingredientService.findAllIngredients());
+    }
+
+    private void setFields() {
+        nameField = new TextField();
+        nameField.setLabel("ingredient name");
+        unitComboBox = new ComboBox<>("measurement unit");
+        unitComboBox.setItems(MeasurementUnit.values());
+        ingredientCategoryComboBox = new ComboBox<>("ingredient category");
+        ingredientCategoryComboBox.setItems(IngredientCategory.values());
+    }
+
+    public void createIngredientGrid(IngredientService ingredientService) {
+        ingredientGrid = new Grid<>(Ingredient.class);
+        ingredientGrid.setItems(ingredientService.findAllIngredients());
+        ingredientGrid.removeColumnByKey("recipes");
+        ingredientGrid.setColumns("name", "unit", "ingredientCategory");
+        ingredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("Remove");
+        ingredientGrid.addColumn(new ComponentRenderer<>(this::buildEditButton)).setHeader("Edit");
+        ingredientGrid.getColumns()
+                .forEach(column -> column.setWidth("250px"));
+        ingredientGrid.setHeightFull();
     }
 }
 

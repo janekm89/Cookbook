@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-@Route("index")
+@Route("")
 public class MainLayout extends VerticalLayout {
     private VerticalLayout sidenav;
     private Grid<Recipe> grid;
