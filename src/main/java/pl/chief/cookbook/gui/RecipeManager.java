@@ -133,14 +133,13 @@ public class RecipeManager extends VerticalLayout {
         Button addRecipe = new Button("create recipe");
         addRecipe.addClickListener(
                 buttonClickEvent -> {
-                    Recipe recipe = new Recipe();
-                    recipe.setName(nameField.getValue());
-                    recipe.setDescription(descriptionField.getValue());
-                    recipe.setRecipeCategory(recipeCategoryComboBox.getValue());
-                    recipe.setCalories(caloriesField.getValue().intValue());
-                    recipe.setIngredientsAmount(selectedIngredientAmount);
-
                     try {
+                        Recipe recipe = new Recipe();
+                        recipe.setName(nameField.getValue());
+                        recipe.setDescription(descriptionField.getValue());
+                        recipe.setRecipeCategory(recipeCategoryComboBox.getValue());
+                        recipe.setCalories(caloriesField.getValue().intValue());
+                        recipe.setIngredientsAmount(selectedIngredientAmount);
                         recipeService.addRecipe(recipe);
                     } catch (NotNumberException e) {
                         e.printStackTrace();
@@ -165,7 +164,7 @@ public class RecipeManager extends VerticalLayout {
                     int id = event.getItem().getId();
                     Dialog dialog = new Dialog();
                     dialog.open();
-                    RecipeEditor recipeEditor1 = new RecipeEditor(recipeService, recipeService.findRecipeById(id));
+                    RecipeEditor recipeEditor1 = new RecipeEditor(recipeService, ingredientService, recipeService.findRecipeById(id), dialog);
                     dialog.add(recipeEditor1);
                 }
 
@@ -207,7 +206,6 @@ public class RecipeManager extends VerticalLayout {
                             "Recipe sucessfully removed from database", 3000,
                             Notification.Position.TOP_START);
                     notification.open();
-
                 });
         return button;
     }

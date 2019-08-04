@@ -34,13 +34,7 @@ public class IngredientManager extends VerticalLayout {
     IngredientService ingredientService;
 
     IngredientManager(IngredientService ingredientService) {
-        /*Image img = new Image(
-                new StreamResource("log",
-                        () -> IngredientManager.class.getResourceAsStream(ImagePath.LOGO)),
-                "Cookbook Logo");*/
-
-
-        Image logo = new Image(ImagePath.LOGO, "logo");
+           Image logo = new Image(ImagePath.LOGO, "logo");
         logo.setHeight("100px");
 
         AppLayout appLayout = new AppLayout();
