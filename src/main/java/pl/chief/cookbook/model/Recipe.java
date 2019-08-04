@@ -7,7 +7,10 @@ import lombok.Setter;
 import pl.chief.cookbook.features.RecipeCategory;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 @Entity
 @Setter
