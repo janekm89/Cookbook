@@ -39,19 +39,23 @@ public class MainLayout extends VerticalLayout {
     private MultiselectComboBox<String> multiSelectIngredient;
     private ComboBox<RecipeCategory> recipeCategoryComboBox;
     private boolean wasSearchAndIsEmpty;
+    private RecipeService recipeService;
+    private IngredientService ingredientService;
 
 
     @Autowired
     public MainLayout(RecipeService recipeService, IngredientService ingredientService) {
+        this.recipeService = recipeService;
+        this.ingredientService = ingredientService;
         sidenav = new VerticalLayout();
         AppLayout appLayout = new AppLayout();
         MenuLayout menuLayout = new MenuLayout(appLayout);
         VerticalLayout table = new VerticalLayout();
         HorizontalLayout content = new HorizontalLayout();
 
-        setRecipesGridProperties(recipeService, ingredientService);
-        createSearchFields(ingredientService);
-        setSideNavProperties(recipeService, ingredientService);
+        setRecipesGridProperties();
+        createSearchFields();
+        setSideNavProperties();
 
         table.add(grid);
         content.add(sidenav, table);
@@ -59,9 +63,9 @@ public class MainLayout extends VerticalLayout {
         add(appLayout);
     }
 
-    private void setSideNavProperties(RecipeService recipeService, IngredientService ingredientService) {
+    private void setSideNavProperties() {
         HorizontalLayout buttonLayout = new HorizontalLayout();
-        Button searchButton = createSearchButton(recipeService, ingredientService);
+        Button searchButton = createSearchButton();
         Button clearButton = createClearButton();
         buttonLayout.add(searchButton, clearButton);
         sidenav.add(recipeCategoryComboBox, recipeNameTextField, recipeDescriptionTextField,
@@ -80,7 +84,6 @@ public class MainLayout extends VerticalLayout {
             caloriesMaxField.clear();
             multiSelectIngredient.clear();
         });
-
         return clearButton;
     }
 
@@ -103,31 +106,31 @@ public class MainLayout extends VerticalLayout {
             grid.setItems(recipes);
     }
 
-    private void searchRecipesByCategoryIfNeeded(List<Recipe> allRecipes, RecipeService recipeService) {
+    private void searchRecipesByCategoryIfNeeded(List<Recipe> allRecipes) {
         if (recipeCategoryComboBox.getValue() != null) {
             retainCollectionsIfNotEmpty(allRecipes, recipeService.findByCategory(recipeCategoryComboBox.getValue()));
         }
     }
 
-    private void searchByNameFieldIfNeeded(List<Recipe> allRecipes, RecipeService recipeService) {
+    private void searchByNameFieldIfNeeded(List<Recipe> allRecipes) {
         if (!recipeNameTextField.getValue().isEmpty()) {
             retainCollectionsIfNotEmpty(allRecipes, recipeService.findRecipeByName("%" + recipeNameTextField.getValue() + "%"));
         }
     }
 
-    private void searchByDescriptionFieldIfNeeded(List<Recipe> allRecipes, RecipeService recipeService) {
+    private void searchByDescriptionFieldIfNeeded(List<Recipe> allRecipes) {
         if (!recipeDescriptionTextField.getValue().isEmpty()) {
             retainCollectionsIfNotEmpty(allRecipes, recipeService.findRecipeByDescription("%" + recipeDescriptionTextField.getValue() + "%"));
         }
     }
 
-    private void searchByDoubleTextFieldIfNeeded(List<Recipe> allRecipes, RecipeService recipeService) throws NotNumberException {
+    private void searchByDoubleTextFieldIfNeeded(List<Recipe> allRecipes) throws NotNumberException {
         if (!caloriesMinField.getValue().isEmpty() || !caloriesMaxField.getValue().isEmpty()) {
             retainCollectionsIfNotEmpty(allRecipes, recipeService.findRecipesWithCaloriesIn(caloriesMinField.getValue(), caloriesMaxField.getValue()));
         }
     }
 
-    private void searchByMultiSelectIfNeeded(List<Recipe> allRecipes, RecipeService recipeService, IngredientService ingredientService) throws RecipeNotFoundException {
+    private void searchByMultiSelectIfNeeded(List<Recipe> allRecipes) throws RecipeNotFoundException {
         if (!multiSelectIngredient.getSelectedItems().isEmpty()) {
             List<Ingredient> ingredients = multiSelectIngredient.getSelectedItems().stream()
                     .map(ingredientService::findIngredientByName).collect(Collectors.toList());
@@ -136,16 +139,16 @@ public class MainLayout extends VerticalLayout {
         }
     }
 
-    private void setRecipesGridProperties(RecipeService recipeService, IngredientService ingredientService) {
+    private void setRecipesGridProperties() {
         grid = new Grid<>(Recipe.class);
         grid.removeColumnByKey("ingredients");
         grid.removeColumnByKey("ingredientsAmount");
         grid.removeColumnByKey("id");
         grid.setColumns("name", "description", "calories", "recipeCategory");
-        addClickOnRecipeListener(recipeService, ingredientService);
+        addClickOnRecipeListener();
     }
 
-    private void addClickOnRecipeListener(RecipeService recipeService, IngredientService ingredientService) {
+    private void addClickOnRecipeListener() {
         grid.addItemClickListener(click -> {
             RecipeView recipeView = new RecipeView(recipeService, ingredientService, click.getItem().getId());
             Dialog dialog = new Dialog();
@@ -159,18 +162,18 @@ public class MainLayout extends VerticalLayout {
         });
     }
 
-    private Button createSearchButton(RecipeService recipeService, IngredientService ingredientService) {
+    private Button createSearchButton() {
         Button button = new Button("Search");
         button.addClickListener(click -> {
             List<Recipe> allRecipes = new ArrayList<>();
             wasSearchAndIsEmpty = false;
             MiddleNotification notification = new MiddleNotification();
             try {
-                searchRecipesByCategoryIfNeeded(allRecipes, recipeService);
-                searchByNameFieldIfNeeded(allRecipes, recipeService);
-                searchByDescriptionFieldIfNeeded(allRecipes, recipeService);
-                searchByDoubleTextFieldIfNeeded(allRecipes, recipeService);
-                searchByMultiSelectIfNeeded(allRecipes, recipeService, ingredientService);
+                searchRecipesByCategoryIfNeeded(allRecipes);
+                searchByNameFieldIfNeeded(allRecipes);
+                searchByDescriptionFieldIfNeeded(allRecipes);
+                searchByDoubleTextFieldIfNeeded(allRecipes);
+                searchByMultiSelectIfNeeded(allRecipes);
                 addRecipesToGrid(allRecipes);
             } catch (RecipeNotFoundException | NotNumberException e) {
                 grid.setItems(new ArrayList<>());
@@ -183,7 +186,7 @@ public class MainLayout extends VerticalLayout {
     }
 
 
-    private void createSearchFields(IngredientService ingredientService) {
+    private void createSearchFields() {
         recipeCategoryComboBox = new ComboBox<>();
         recipeCategoryComboBox.setPlaceholder("Recipe category");
         recipeCategoryComboBox.setItems(Arrays.asList(RecipeCategory.values()));

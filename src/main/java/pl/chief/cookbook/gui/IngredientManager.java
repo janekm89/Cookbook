@@ -27,11 +27,12 @@ public class IngredientManager extends VerticalLayout {
     private ComboBox<MeasurementUnit> unitComboBox;
     private ComboBox<IngredientCategory> ingredientCategoryComboBox;
     private HorizontalLayout ingredientEditor;
+    private IngredientService ingredientService;
 
     @Autowired
-    IngredientService ingredientService;
-
     IngredientManager(IngredientService ingredientService) {
+        this.ingredientService = ingredientService;
+
         AppLayout appLayout = new AppLayout();
         MenuLayout menuLayout = new MenuLayout(appLayout);
 
@@ -60,8 +61,7 @@ public class IngredientManager extends VerticalLayout {
         button.addClickListener(
                 buttonClickEvent -> {
                     deleteIngredient(ingredient);
-                    MiddleNotification notification = new MiddleNotification();
-                    notification.setText("Ingredient successfully removed from database");
+                    MiddleNotification notification = new MiddleNotification("Ingredient successfully removed from database");
                     notification.open();
                 });
         return button;
@@ -102,8 +102,7 @@ public class IngredientManager extends VerticalLayout {
 
     private Button buildCancelButton(Dialog dialog) {
         return new Button("Cancel", event -> {
-            MiddleNotification notification = new MiddleNotification();
-            notification.setText("Ingredient without changes");
+            MiddleNotification notification = new MiddleNotification("Ingredient without changes");
             notification.open();
             dialog.close();
         });
@@ -116,8 +115,7 @@ public class IngredientManager extends VerticalLayout {
             ingredient.setUnit(unitComboBox.getValue());
             ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
             editIngredient(ingredient);
-            MiddleNotification notification = new MiddleNotification();
-            notification.setText("Ingredient edited in database");
+            MiddleNotification notification = new MiddleNotification("Ingredient edited in database");
             notification.open();
             dialog.close();
         });
@@ -132,12 +130,11 @@ public class IngredientManager extends VerticalLayout {
                     ingredient.setName(nameField.getValue());
                     ingredient.setUnit(unitComboBox.getValue());
                     ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
-                    
+
                     ingredientService.addIngredient(ingredient);
                     ingredientGrid.setItems(ingredientService.findAllIngredients());
 
-                    MiddleNotification notification = new MiddleNotification();
-                    notification.setText("Ingredient successfully added to database");
+                    MiddleNotification notification = new MiddleNotification("Ingredient successfully added to database");
                     notification.open();
                 });
         return addButton;

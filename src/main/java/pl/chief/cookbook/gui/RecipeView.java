@@ -15,20 +15,24 @@ import java.util.List;
 
 @Route("recipe")
 public class RecipeView extends VerticalLayout {
+    private Recipe recipe;
+    private Grid recipeIngredientsTable;
 
 
     @Autowired
     RecipeView(RecipeService recipeService, IngredientService ingredientService, int recipeId) {
-        Recipe recipe = recipeService.findRecipeById(recipeId);
+        recipe = recipeService.findRecipeById(recipeId);
         Label nameLabel = new Label(recipe.getName());
         nameLabel.getStyle().set("font-weight", "bold");
 
         Label descriptionLabel = new Label(recipe.getDescription());
-        Grid recipeIngredientsTable = new Grid(Ingredient.class);
+        recipeIngredientsTable = new Grid(Ingredient.class);
 
+        setRecipeIngredientTableProperties(ingredientService.findIngredientsByRecipe(recipe), ingredientService);
+        add(nameLabel, descriptionLabel, recipeIngredientsTable);
+    }
 
-        List<Ingredient> listOfIngredientsInRecipe = ingredientService.findIngredientsByRecipe(recipe);
-
+    private void setRecipeIngredientTableProperties(List<Ingredient> listOfIngredientsInRecipe, IngredientService ingredientService) {
         recipeIngredientsTable.setItems(ingredientService.findIngredientsByRecipe(recipe));
         recipeIngredientsTable.removeColumnByKey("recipes");
         recipeIngredientsTable.removeColumnByKey("ingredientCategory");
@@ -39,9 +43,6 @@ public class RecipeView extends VerticalLayout {
                 .findIngredientAmountByIngredientIdAndRecipeId(listOfIngredientsInRecipe.listIterator().next().getId(), recipe.getId()))
                 .setHeader("Amount");
         recipeIngredientsTable.setHeightByRows(true);
-
-
-        add(nameLabel, descriptionLabel, recipeIngredientsTable);
 
     }
 }
