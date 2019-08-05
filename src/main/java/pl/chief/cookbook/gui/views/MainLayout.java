@@ -1,4 +1,4 @@
-package pl.chief.cookbook.gui;
+package pl.chief.cookbook.gui.views;
 
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -17,6 +17,7 @@ import pl.chief.cookbook.exception.RecipeNotFoundException;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.gui.components.MiddleNotification;
 import pl.chief.cookbook.gui.layout.MenuLayout;
+import pl.chief.cookbook.gui.layout.RecipeView;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;

@@ -1,4 +1,4 @@
-package pl.chief.cookbook.gui;
+package pl.chief.cookbook.gui.layout;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -11,6 +11,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.chief.cookbook.exception.RecipeNotFoundException;
 import pl.chief.cookbook.features.RecipeCategory;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class RecipeEditor extends VerticalLayout {
     TextField nameField;
@@ -30,9 +32,14 @@ public class RecipeEditor extends VerticalLayout {
     ComboBox<RecipeCategory> recipeCategoryComboBox;
     NumberField caloriesField;
     Map<Integer, Double> selectedIngredientAmount;
+    Map<Integer, Double> existingIngredientAmount;
+
 
     @Autowired
     public RecipeEditor(RecipeService recipeService, IngredientService ingredientService, Recipe recipe, Dialog dialog) {
+
+
+
         nameField = new TextField();
         nameField.setValue(recipe.getName());
         nameField.setLabel("recipe name");
@@ -56,7 +63,11 @@ public class RecipeEditor extends VerticalLayout {
 
         ComboBox<String> ingredientBox = new ComboBox<>("choose ingredient to add");
         List<Ingredient> selectedIngredientList = new ArrayList<>();
+
+        existingIngredientAmount = new HashMap<>();
         selectedIngredientAmount = new HashMap<>();
+
+        List<Ingredient> existingIngredientList = ingredientService.findIngredientsByRecipe(recipe);
 
 
         for (Ingredient ingredient : ingredientService.findIngredientsByRecipe(recipe)) {
@@ -65,17 +76,15 @@ public class RecipeEditor extends VerticalLayout {
         }
 
 
-        Grid<Ingredient> selectedIngredientGrid = new Grid<>(Ingredient.class);
-        selectedIngredientGrid.setItems(ingredientService.findIngredientsByRecipe(recipe));
-
 
         Label selectedIngredientLabel = new Label("current selection:");
 
         TextField amountBox = new TextField("amount");
 
-
         ingredientBox.setItems(ingredientService.findAllIngredientNames());
 
+        Grid<Ingredient> selectedIngredientGrid = new Grid<>(Ingredient.class);
+        selectedIngredientGrid.setItems(ingredientService.findIngredientsByRecipe(recipe));
         selectedIngredientGrid.removeColumnByKey("recipes");
         selectedIngredientGrid.setColumns("name", "ingredientCategory");
         selectedIngredientGrid.addColumn(ingredient -> selectedIngredientAmount.get(ingredient.getId())).setHeader("Amount");
@@ -89,13 +98,19 @@ public class RecipeEditor extends VerticalLayout {
             amountBox.setSuffixComponent(new Span(unitName));
         });
 
+
         Button addIngredientButton = new Button("add ingredient");
         addIngredientButton.addClickListener(buttonClickEvent -> {
             Ingredient selectedIngredient = ingredientService.findIngredientByName(ingredientBox.getValue());
             Double amount = Double.parseDouble(amountBox.getValue());
-            selectedIngredientList.add(selectedIngredient);
             selectedIngredientAmount.put(selectedIngredient.getId(), amount);
-            selectedIngredientGrid.setItems(selectedIngredientList);
+            List<Ingredient> selectedIngredientList1 = selectedIngredientGrid
+                    .getDataProvider()
+                    .fetch(new Query<>())
+                    .collect(Collectors.toList());
+
+            selectedIngredientList1.add(selectedIngredient);
+            selectedIngredientGrid.setItems(selectedIngredientList1);
 
 
             Notification notification = new Notification(

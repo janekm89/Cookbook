@@ -1,7 +1,8 @@
-package pl.chief.cookbook.gui;
+package pl.chief.cookbook.gui.views;
 
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -52,8 +53,7 @@ public class IngredientManager extends VerticalLayout {
         ingredientEditor = new HorizontalLayout();
         Button addButton = buildAddButton();
         ingredientEditor.add(nameField, unitComboBox, ingredientCategoryComboBox, addButton);
-        ingredientEditor.setVerticalComponentAlignment(Alignment.CENTER, addButton);
-
+        ingredientEditor.setVerticalComponentAlignment(Alignment.END, addButton);
     }
 
     private Button buildDeleteButton(Ingredient ingredient) {
@@ -137,6 +137,8 @@ public class IngredientManager extends VerticalLayout {
                     MiddleNotification notification = new MiddleNotification("Ingredient successfully added to database");
                     notification.open();
                 });
+
+        addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         return addButton;
     }
 

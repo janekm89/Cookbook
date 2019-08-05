@@ -1,4 +1,4 @@
-package pl.chief.cookbook.gui;
+package pl.chief.cookbook.gui.layout;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Label;
@@ -20,7 +20,7 @@ public class RecipeView extends VerticalLayout {
 
 
     @Autowired
-    RecipeView(RecipeService recipeService, IngredientService ingredientService, int recipeId) {
+    public RecipeView(RecipeService recipeService, IngredientService ingredientService, int recipeId) {
         recipe = recipeService.findRecipeById(recipeId);
         Label nameLabel = new Label(recipe.getName());
         nameLabel.getStyle().set("font-weight", "bold");
