@@ -38,15 +38,12 @@ public class IngredientServiceTest {
     public void setUp(){
         ingredient = new IngredientBuilder().withName("Ser").withUnit(MeasurementUnit.GRAM)
                 .withCategory(IngredientCategory.DAIRY_AND_EGGS).createIngredient();
-
     }
-
 
     @Test
     public void shouldAddIngredient() {
         ingredientService.addIngredient(ingredient);
     }
-
 
     @Test
     public void shouldFindIngredientByName() {
@@ -74,5 +71,10 @@ public class IngredientServiceTest {
             e.printStackTrace();
         }
         assertEquals(2, ingredientService.findIngredientsByRecipe(recipe).get(0).getId());
+    }
+
+    @Test
+    public void shouldFindUnitByIngredientName(){
+        assertEquals(MeasurementUnit.GRAM, ingredientService.findUnitByIngredientName("Ser"));
     }
 }

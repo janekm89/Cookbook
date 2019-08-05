@@ -1,5 +1,6 @@
 package pl.chief.cookbook.service;
 
+import com.helger.css.reader.errorhandler.CollectingCSSParseErrorHandler;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,6 +23,9 @@ import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.repository.IngredientRepository;
 import pl.chief.cookbook.repository.RecipeRepository;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -44,68 +48,6 @@ public class RecipeServiceTest {
 
     @Autowired
     private RecipeRepository recipeRepository;
-
-
-    @Before
-    public void setUp() {
-        ingredient = new IngredientBuilder()
-                .withName("Pomidor")
-                .withCategory(IngredientCategory.VEGETABLES)
-                .withUnit(MeasurementUnit.PCS)
-                .createIngredient();
-        ingredientRepository.save(ingredient);
-
-        ingredient2 = ingredientRepository.getOne(1);
-
-        ingredient2 = ingredientRepository.getOne(1);
-
-        recipe = new RecipeBuilder()
-                .withCategory(RecipeCategory.PIZZA)
-                .withCalories(400)
-                .withDescription("Italian Standard Pizza")
-                .withName("Margeritta")
-                .withIngredientAmount(ingredientRepository.findByName(ingredient.getName()).get().getId(), 1.0)
-                .createRecipe();
-
-
-        recipe2 = new RecipeBuilder()
-                .withCategory(RecipeCategory.DRINKS)
-                .withCalories(200)
-                .withDescription("Mohito drink")
-                .withName("Mohito")
-                .withIngredientAmount(ingredientRepository.findByName(ingredient.getName()).get().getId(), 10.0)
-                .createRecipe();
-
-        recipe3 = new RecipeBuilder()
-                .withCategory(RecipeCategory.DRINKS)
-                .withCalories(200)
-                .withDescription("The strongest of drinks")
-                .withName("Russian drink")
-                .withIngredientAmount(ingredient2, 10.0)
-                .createRecipe();
-
-        recipe3 = new RecipeBuilder()
-                .withCategory(RecipeCategory.DRINKS)
-                .withCalories(200)
-                .withDescription("The strongest of drinks")
-                .withName("Russian drink")
-                .withIngredientAmount(ingredient2, 10.0)
-                .createRecipe();
-    }
-
-
-    @Test
-    public void shouldAddRecipe() {
-        try {
-            recipeService.addRecipe(recipe);
-
-        recipeService.addRecipe(recipe2);
-        recipeService.addRecipe(recipe3);
-        } catch (NotNumberException e) {
-            e.printStackTrace();
-        }
-    }
-
 
     @Test
     public void shouldFindRecipeByName() {
@@ -135,10 +77,10 @@ public class RecipeServiceTest {
     @Test
     @Transactional
     public void shouldFindAllRecipesContainingIngredient() {
-        Ingredient random = ingredientRepository.getOne(1);
-        List<Recipe> recipes = recipeRepository.findByIngredientsContaining(random);
+        Ingredient randomIngredient = ingredientRepository.getOne(1);
+        List<Recipe> recipes = recipeRepository.findByIngredientsContaining(randomIngredient);
         assertTrue(recipes.stream().allMatch(r ->
-                r.getIngredients().contains(random)));
+                r.getIngredients().contains(randomIngredient)));
     }
 
 }
