@@ -7,4 +7,9 @@ public class MiddleNotification extends Notification {
        this.setDuration(5000);
        this.setPosition(Position.MIDDLE);
    }
+
+   public MiddleNotification(String message){
+       this();
+       this.setText(message);
+   }
 }
