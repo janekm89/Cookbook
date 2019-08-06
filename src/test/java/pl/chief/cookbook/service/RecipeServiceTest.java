@@ -1,33 +1,22 @@
 package pl.chief.cookbook.service;
 
-import com.helger.css.reader.errorhandler.CollectingCSSParseErrorHandler;
-import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
-
-
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.Transactional;
-import pl.chief.cookbook.builder.IngredientBuilder;
-import pl.chief.cookbook.builder.RecipeBuilder;
-import pl.chief.cookbook.exception.NotNumberException;
-import pl.chief.cookbook.features.IngredientCategory;
-import pl.chief.cookbook.features.MeasurementUnit;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.repository.IngredientRepository;
 import pl.chief.cookbook.repository.RecipeRepository;
 
-import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 //@IfProfileValue(name="enableTests", value="true")

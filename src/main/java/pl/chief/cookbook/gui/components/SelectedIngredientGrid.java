@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import pl.chief.cookbook.model.Ingredient;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @Getter

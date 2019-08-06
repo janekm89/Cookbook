@@ -2,12 +2,7 @@ package pl.chief.cookbook.gui.components;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import org.springframework.beans.factory.annotation.Autowired;
-import pl.chief.cookbook.exception.NotNumberException;
-import pl.chief.cookbook.gui.layout.RecipeCreatorBar;
 import pl.chief.cookbook.gui.layout.RecipeCreatorLayout;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
