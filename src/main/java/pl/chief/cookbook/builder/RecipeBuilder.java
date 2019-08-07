@@ -2,6 +2,7 @@ package pl.chief.cookbook.builder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.model.Ingredient;
@@ -105,7 +106,7 @@ public class RecipeBuilder {
         return this.withCalories(parseIfIsNumber(calories));
     }
 
-   public RecipeBuilder withIngredientAmount(Ingredient ingredient, Double amount) {
+   public RecipeBuilder withIngredientAmount(Ingredient ingredient, Double amount) throws EntityAlreadyExistException {
         ingredientService.addIngredient(ingredient);
         return withIngredientAmount(ingredientService.findIngredientByName(ingredient.getName()).getId(), amount);
     }

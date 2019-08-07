@@ -4,7 +4,7 @@ import com.vaadin.flow.component.notification.Notification;
 
 public class MiddleNotification extends Notification {
    public MiddleNotification(){
-       this.setDuration(5000);
+       this.setDuration(3000);
        this.setPosition(Position.MIDDLE);
    }
 

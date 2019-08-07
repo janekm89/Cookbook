@@ -23,7 +23,7 @@ public class IngredientService {
     IngredientRepository ingredientRepository;
 
 
-    public void addIngredient(Ingredient ingredient) {
+    public void addIngredient(Ingredient ingredient) throws EntityAlreadyExistException {
         if (ingredientRepository.findByName(ingredient.getName()).isPresent()) {
             throw new EntityAlreadyExistException(ingredient.getName());
         } else if(!validName(ingredient.getName())){

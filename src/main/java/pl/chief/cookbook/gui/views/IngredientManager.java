@@ -12,6 +12,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.MeasurementUnit;
 import pl.chief.cookbook.gui.components.MiddleNotification;
@@ -125,17 +126,20 @@ public class IngredientManager extends VerticalLayout {
         Button addButton = new Button("Add");
 
         addButton.addClickListener(
-                buttonClickEvent -> {
-                    Ingredient ingredient = new Ingredient();
-                    ingredient.setName(nameField.getValue());
-                    ingredient.setUnit(unitComboBox.getValue());
-                    ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
-
-                    ingredientService.addIngredient(ingredient);
-                    ingredientGrid.setItems(ingredientService.findAllIngredients());
-
-                    MiddleNotification notification = new MiddleNotification("Ingredient successfully added to database");
-                    notification.open();
+                event -> {
+                    try {
+                        Ingredient ingredient = new Ingredient();
+                        ingredient.setName(nameField.getValue());
+                        ingredient.setUnit(unitComboBox.getValue());
+                        ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
+                        ingredientService.addIngredient(ingredient);
+                        ingredientGrid.setItems(ingredientService.findAllIngredients());
+                        MiddleNotification notification = new MiddleNotification("Ingredient successfully added to database");
+                        notification.open();
+                    } catch (EntityAlreadyExistException e) {
+                        MiddleNotification notification = new MiddleNotification(e.getMessage());
+                        notification.open();
+                    }
                 });
 
         addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);

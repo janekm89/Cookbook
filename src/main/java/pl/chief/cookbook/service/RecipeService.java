@@ -22,14 +22,13 @@ public class RecipeService {
     private RecipeRepository recipeRepository;
 
 
-    public void addRecipe(Recipe recipe) throws NotNumberException {
+    public void addRecipe(Recipe recipe) throws NotNumberException, EntityAlreadyExistException{
         if (recipeRepository.findByName(recipe.getName()).isPresent()) {
             throw new EntityAlreadyExistException(recipe.getName());
         } else if (validateRecipeTraits(recipe.getName(), recipe.getDescription(), String.valueOf(recipe.getCalories()))) {
             recipeRepository.save(recipe);
         }
     }
-
 
     public boolean updateRecipe(Recipe recipe, int recipeId) throws RecipeNotFoundException {
         Recipe existingRecipe = recipeRepository.findById(recipeId).orElseThrow(RecipeNotFoundException::new);

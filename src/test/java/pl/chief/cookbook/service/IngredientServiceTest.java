@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import pl.chief.cookbook.builder.IngredientBuilder;
+import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.MeasurementUnit;
@@ -41,7 +42,7 @@ public class IngredientServiceTest {
     }
 
     @Test
-    public void shouldAddIngredient() {
+    public void shouldAddIngredient() throws EntityAlreadyExistException {
         ingredientService.addIngredient(ingredient);
     }
 
