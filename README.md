@@ -1,6 +1,7 @@
 # CookBook
 CookBook is a student project. It is part of Java from Scratch course in Software Development Academy.
 
+https://cookbook-group-project.herokuapp.com/
 ## General info
 Application provides easy access to your recipes.
 

@@ -17,7 +17,8 @@ import pl.chief.cookbook.repository.IngredientRepository;
 
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 @RunWith(SpringRunner.class)
