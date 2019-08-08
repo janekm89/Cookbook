@@ -96,8 +96,9 @@ public class MainLayout extends VerticalLayout {
             containingAll.addAll(newElements);
         } else if (!containingAll.isEmpty()) {
             containingAll.clear();
-            wasSearchAndIsEmpty = true;
         }
+        if (containingAll.isEmpty())
+            wasSearchAndIsEmpty = true;
     }
 
     private void addRecipesToGrid(List<Recipe> recipes) throws RecipeNotFoundException {
@@ -108,7 +109,7 @@ public class MainLayout extends VerticalLayout {
     }
 
     private void searchRecipesByCategoryIfNeeded(List<Recipe> allRecipes) {
-        if (recipeCategoryComboBox.getValue() != null) {
+        if (!recipeCategoryComboBox.isEmpty()) {
             retainCollectionsIfNotEmpty(allRecipes, recipeService.findByCategory(recipeCategoryComboBox.getValue()));
         }
     }
@@ -126,9 +127,21 @@ public class MainLayout extends VerticalLayout {
     }
 
     private void searchByDoubleTextFieldIfNeeded(List<Recipe> allRecipes) throws NotNumberException {
-        if (!caloriesMinField.getValue().isEmpty() || !caloriesMaxField.getValue().isEmpty()) {
-            retainCollectionsIfNotEmpty(allRecipes, recipeService.findRecipesWithCaloriesIn(caloriesMinField.getValue(), caloriesMaxField.getValue()));
+        boolean wasCaloriesMinFieldEmpty = ifIsEmptySetValue(caloriesMinField, "0");
+        boolean wasCaloriesMaxFieldEmpty = ifIsEmptySetValue(caloriesMaxField, "10000");
+        retainCollectionsIfNotEmpty(allRecipes, recipeService.findRecipesWithCaloriesIn(caloriesMinField.getValue(), caloriesMaxField.getValue()));
+        if (wasCaloriesMinFieldEmpty)
+            caloriesMinField.clear();
+        if (wasCaloriesMaxFieldEmpty)
+            caloriesMaxField.clear();
+    }
+
+    private boolean ifIsEmptySetValue(TextField textField, String value) {
+        if (textField.isEmpty()) {
+            textField.setValue(value);
+            return true;
         }
+        return false;
     }
 
     private void searchByMultiSelectIfNeeded(List<Recipe> allRecipes) throws RecipeNotFoundException {
@@ -146,6 +159,7 @@ public class MainLayout extends VerticalLayout {
         grid.removeColumnByKey("ingredientsAmount");
         grid.removeColumnByKey("id");
         grid.setColumns("name", "description", "calories", "recipeCategory");
+        grid.getColumnByKey("calories").setHeader("kcal");
         addClickOnRecipeListener();
     }
 
@@ -170,11 +184,15 @@ public class MainLayout extends VerticalLayout {
             wasSearchAndIsEmpty = false;
             MiddleNotification notification = new MiddleNotification();
             try {
-                searchRecipesByCategoryIfNeeded(allRecipes);
-                searchByNameFieldIfNeeded(allRecipes);
-                searchByDescriptionFieldIfNeeded(allRecipes);
-                searchByDoubleTextFieldIfNeeded(allRecipes);
-                searchByMultiSelectIfNeeded(allRecipes);
+                if (allFieldsAreEmpty()) {
+                    allRecipes = recipeService.findAllRecipes();
+                } else {
+                    searchRecipesByCategoryIfNeeded(allRecipes);
+                    searchByNameFieldIfNeeded(allRecipes);
+                    searchByDescriptionFieldIfNeeded(allRecipes);
+                    searchByDoubleTextFieldIfNeeded(allRecipes);
+                    searchByMultiSelectIfNeeded(allRecipes);
+                }
                 addRecipesToGrid(allRecipes);
             } catch (RecipeNotFoundException | NotNumberException e) {
                 grid.setItems(new ArrayList<>());
@@ -199,12 +217,21 @@ public class MainLayout extends VerticalLayout {
         recipeDescriptionTextField.setPlaceholder("recipe Description");
 
         caloriesMinField = new TextField();
-        caloriesMinField.setPlaceholder("Calories minimum");
+        caloriesMinField.setPlaceholder("kcal minimum");
         caloriesMaxField = new TextField();
-        caloriesMaxField.setPlaceholder("Calories maximum");
+        caloriesMaxField.setPlaceholder("kcal maximum");
 
         multiSelectIngredient = new MultiselectComboBox<>();
         multiSelectIngredient.setItems(ingredientService.findAllIngredientNames());
         multiSelectIngredient.setPlaceholder("Ingredients");
+    }
+
+    private boolean allFieldsAreEmpty() {
+        return (recipeCategoryComboBox.isEmpty() &&
+                recipeNameTextField.isEmpty() &&
+                recipeDescriptionTextField.isEmpty() &&
+                caloriesMinField.isEmpty() &&
+                caloriesMaxField.isEmpty() &&
+                multiSelectIngredient.getSelectedItems().size() == 0);
     }
 }

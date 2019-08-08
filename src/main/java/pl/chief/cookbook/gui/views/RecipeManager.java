@@ -64,6 +64,7 @@ public class RecipeManager extends VerticalLayout {
         recipeGrid = new Grid<>(Recipe.class);
         reloadGrid();
         recipeGrid.setColumns("name", "description", "calories", "recipeCategory");
+        recipeGrid.getColumnByKey("calories").setHeader("kcal");
         recipeGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("remove");
         recipeGrid.addItemClickListener(event -> {
             int id = event.getItem().getId();

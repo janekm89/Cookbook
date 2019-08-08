@@ -20,24 +20,21 @@ import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 import pl.chief.cookbook.service.RecipeService;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class RecipeEditor extends VerticalLayout {
-    TextField nameField;
-    TextField descriptionField;
-    ComboBox<RecipeCategory> recipeCategoryComboBox;
-    NumberField caloriesField;
-    Map<Integer, Double> selectedIngredientAmount;
-    Map<Integer, Double> existingIngredientAmount;
+    private TextField nameField;
+    private TextField descriptionField;
+    private ComboBox<RecipeCategory> recipeCategoryComboBox;
+    private NumberField caloriesField;
+    private Map<Integer, Double> selectedIngredientAmount;
 
 
     @Autowired
     public RecipeEditor(RecipeService recipeService, IngredientService ingredientService, Recipe recipe, Dialog dialog) {
-
 
 
         nameField = new TextField();
@@ -52,7 +49,7 @@ public class RecipeEditor extends VerticalLayout {
         recipeCategoryComboBox.setItems(RecipeCategory.values());
         recipeCategoryComboBox.setValue(recipe.getRecipeCategory());
 
-        caloriesField = new NumberField("Calories");
+        caloriesField = new NumberField("kcal");
 
         caloriesField.setValue(10d);
         caloriesField.setMin(0);
@@ -62,19 +59,15 @@ public class RecipeEditor extends VerticalLayout {
         caloriesField.setValue((double) recipe.getCalories());
 
         ComboBox<String> ingredientBox = new ComboBox<>("choose ingredient to add");
-        List<Ingredient> selectedIngredientList = new ArrayList<>();
 
-        existingIngredientAmount = new HashMap<>();
         selectedIngredientAmount = new HashMap<>();
 
-        List<Ingredient> existingIngredientList = ingredientService.findIngredientsByRecipe(recipe);
 
 
         for (Ingredient ingredient : ingredientService.findIngredientsByRecipe(recipe)) {
             Double ingredientAmount = ingredientService.findIngredientAmountByIngredientIdAndRecipeId(ingredient.getId(), recipe.getId());
             selectedIngredientAmount.put(ingredient.getId(), ingredientAmount);
         }
-
 
 
         Label selectedIngredientLabel = new Label("current selection:");

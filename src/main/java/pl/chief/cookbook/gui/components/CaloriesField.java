@@ -7,9 +7,9 @@ public class CaloriesField extends NumberField {
     public CaloriesField() {
         this.setValue(10d);
         this.setMin(0);
-        this.setMax(500);
+        this.setMax(10000);
         this.setStep(10);
         this.setHasControls(true);
-        this.setLabel("Calories");
+        this.setLabel("kcal");
     }
 }
