@@ -19,16 +19,20 @@ import static pl.chief.cookbook.validation.CommonTraitsValidator.validName;
 @Service
 public class IngredientService {
 
+    private IngredientRepository ingredientRepository;
+
     @Autowired
-    IngredientRepository ingredientRepository;
+    public IngredientService(IngredientRepository ingredientRepository) {
+        this.ingredientRepository = ingredientRepository;
+    }
 
 
     public void addIngredient(Ingredient ingredient) {
         if (ingredientRepository.findByName(ingredient.getName()).isPresent()) {
             throw new EntityAlreadyExistException(ingredient.getName());
-        } else if(!validName(ingredient.getName())){
-            throw new WrongNameException(ingredient.getName());}
-        else {
+        } else if (!validName(ingredient.getName())) {
+            throw new WrongNameException(ingredient.getName());
+        } else {
             ingredientRepository.save(ingredient);
         }
     }
@@ -49,11 +53,11 @@ public class IngredientService {
         return ingredientRepository.findByIngredientCategory(ingredientCategory);
     }
 
-    public List<Ingredient> findIngredientsWithNames(String... ingredientNames){
+    public List<Ingredient> findIngredientsWithNames(String... ingredientNames) {
         return ingredientRepository.findByNameIn(ingredientNames);
     }
 
-    public double findIngredientAmountByIngredientIdAndRecipeId(int ingredientId, int recipeId){
+    public double findIngredientAmountByIngredientIdAndRecipeId(int ingredientId, int recipeId) {
         return ingredientRepository.findIngredientAmountInRecipe(ingredientId, recipeId);
     }
 
@@ -76,19 +80,19 @@ public class IngredientService {
         return deleteIngredient(existingIngredient);
     }
 
-    public List<Ingredient> findIngredientsByRecipe(Recipe recipe){
+    public List<Ingredient> findIngredientsByRecipe(Recipe recipe) {
         return ingredientRepository.findByRecipes(recipe);
     }
 
-    public List<String> findAllIngredientNames(){
+    public List<String> findAllIngredientNames() {
         return ingredientRepository.findAllIngredientNames();
     }
 
-    public List<String> findAllIngredientNamesByIngredientCategory(IngredientCategory ingredientCategory){
+    public List<String> findAllIngredientNamesByIngredientCategory(IngredientCategory ingredientCategory) {
         return ingredientRepository.findAllIngredientNamesByCategory(ingredientCategory);
     }
 
-    public MeasurementUnit findUnitByIngredientName(String name){
+    public MeasurementUnit findUnitByIngredientName(String name) {
         return ingredientRepository.findUnitByIngredientName(name);
     }
 }

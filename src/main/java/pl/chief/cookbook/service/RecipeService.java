@@ -18,9 +18,12 @@ import static pl.chief.cookbook.validation.RecipeValidator.validateRecipeTraits;
 
 @Service
 public class RecipeService {
-    @Autowired
     private RecipeRepository recipeRepository;
 
+    @Autowired
+    public RecipeService(RecipeRepository recipeRepository) {
+        this.recipeRepository = recipeRepository;
+    }
 
     public void addRecipe(Recipe recipe) throws NotNumberException {
         if (recipeRepository.findByName(recipe.getName()).isPresent()) {
@@ -43,7 +46,7 @@ public class RecipeService {
         return true;
     }
 
-    public void deleteRecipe(Recipe recipe){
+    public void deleteRecipe(Recipe recipe) {
         recipeRepository.delete(recipe);
     }
 
@@ -63,7 +66,8 @@ public class RecipeService {
         int recipeId = parseIfIsNumber(id);
         return findRecipeById(recipeId);
     }
-    public Recipe findRecipeById(int recipeId){
+
+    public Recipe findRecipeById(int recipeId) {
         try {
             return recipeRepository.findById(recipeId).orElseThrow(RecipeNotFoundException::new);
         } catch (RecipeNotFoundException e) {
@@ -76,7 +80,7 @@ public class RecipeService {
         return recipeRepository.findByRecipeCategory(recipeCategory);
     }
 
-    public List<Recipe> findRecipesWithCaloriesIn(String caloriesMin, String caloriesMax) throws NotNumberException{
+    public List<Recipe> findRecipesWithCaloriesIn(String caloriesMin, String caloriesMax) throws NotNumberException {
         int calMin = parseIfIsNumber(caloriesMin);
         int calMax = parseIfIsNumber(caloriesMax);
         return new ArrayList<>(recipeRepository.findByCaloriesBetween(calMin, calMax));
@@ -91,7 +95,7 @@ public class RecipeService {
         return recipeRepository.findByIngredientsContaining(ingredient);
     }
 
-    public List<Integer> findRecipesIdWithIngredients(Collection<Ingredient> ingredients) throws RecipeNotFoundException{
+    public List<Integer> findRecipesIdWithIngredients(Collection<Ingredient> ingredients) throws RecipeNotFoundException {
         List<Integer> ingredientIds = ingredients.stream().map(Ingredient::getId).collect(Collectors.toList());
         List<Integer> recipesIds = recipeRepository.findRecipeIdByIngredients(ingredientIds, ingredientIds.size());
         if (recipesIds.size() == 0)
@@ -102,9 +106,6 @@ public class RecipeService {
     public List<Recipe> findRecipesWithIds(Collection<Integer> recipesIds) {
         return recipeRepository.findRecipesByIdIn(recipesIds);
     }
-
-
-
 
 
 }

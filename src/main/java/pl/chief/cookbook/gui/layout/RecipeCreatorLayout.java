@@ -62,7 +62,7 @@ public class RecipeCreatorLayout extends VerticalLayout {
                     }
                     //recipeGrid.setItems(recipeService.findAllRecipes());
 
-                    Notification notification = new MiddleNotification("Recipe sucessfully added to database");
+                    Notification notification = new MiddleNotification("Recipe successfully added to database");
                     notification.open();
                 });
         addRecipeButtonLayout.add(addRecipeButton);
