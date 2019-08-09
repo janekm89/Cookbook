@@ -22,7 +22,7 @@ import pl.chief.cookbook.service.IngredientService;
 
 
 @Route("ingredient-manager")
-public class IngredientManager extends VerticalLayout {
+public class IngredientManagerView extends VerticalLayout {
 
     private Grid<Ingredient> ingredientGrid;
     private TextField nameField;
@@ -32,7 +32,7 @@ public class IngredientManager extends VerticalLayout {
     private IngredientService ingredientService;
 
     @Autowired
-    IngredientManager(IngredientService ingredientService) {
+    IngredientManagerView(IngredientService ingredientService) {
         this.ingredientService = ingredientService;
 
         AppLayout appLayout = new AppLayout();

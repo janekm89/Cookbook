@@ -17,7 +17,7 @@ import pl.chief.cookbook.exception.RecipeNotFoundException;
 import pl.chief.cookbook.features.RecipeCategory;
 import pl.chief.cookbook.gui.components.MiddleNotification;
 import pl.chief.cookbook.gui.layout.MenuLayout;
-import pl.chief.cookbook.gui.layout.RecipeView;
+import pl.chief.cookbook.gui.layout.RecipePresenter;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 
 @Route("")
-public class MainLayout extends VerticalLayout {
+public class RecipeBrowserView extends VerticalLayout {
     private VerticalLayout sidenav;
     private Grid<Recipe> grid;
     private TextField recipeNameTextField;
@@ -45,7 +45,7 @@ public class MainLayout extends VerticalLayout {
 
 
     @Autowired
-    public MainLayout(RecipeService recipeService, IngredientService ingredientService) {
+    public RecipeBrowserView(RecipeService recipeService, IngredientService ingredientService) {
         this.recipeService = recipeService;
         this.ingredientService = ingredientService;
         sidenav = new VerticalLayout();
@@ -165,7 +165,7 @@ public class MainLayout extends VerticalLayout {
 
     private void addClickOnRecipeListener() {
         grid.addItemClickListener(click -> {
-            RecipeView recipeView = new RecipeView(recipeService, ingredientService, click.getItem().getId());
+            RecipePresenter recipeView = new RecipePresenter(recipeService, ingredientService, click.getItem().getId());
             Dialog dialog = new Dialog();
             dialog.setWidth("1000px");
             dialog.setHeight("500px");

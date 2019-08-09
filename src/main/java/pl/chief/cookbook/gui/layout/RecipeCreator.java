@@ -4,11 +4,15 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.chief.cookbook.gui.components.BoldLabel;
+import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
-public class RecipeCreatorLayout extends VerticalLayout {
+public class RecipeCreator extends VerticalLayout {
     private final IngredientService ingredientService;
     private IngredientSelector ingredientSelector;
     private RecipeCreatorBar recipeCreatorBar;
@@ -16,7 +20,7 @@ public class RecipeCreatorLayout extends VerticalLayout {
 
 
     @Autowired
-    public RecipeCreatorLayout(IngredientService ingredientService) {
+    public RecipeCreator(IngredientService ingredientService) {
         this.ingredientService = ingredientService;
 
         BoldLabel titleLabel = new BoldLabel("Create new recipe");
@@ -26,9 +30,22 @@ public class RecipeCreatorLayout extends VerticalLayout {
         add(titleLabel, recipeCreatorBar, ingredientSelector);
     }
 
+    @Autowired
+    public RecipeCreator(IngredientService ingredientService, Recipe recipe) {
+        this.ingredientService = ingredientService;
+
+        BoldLabel titleLabel = new BoldLabel("Edit recipe");
+        recipeCreatorBar = new RecipeCreatorBar(recipe);
+        ingredientSelector = new IngredientSelector(ingredientService, recipe);
+
+        add(titleLabel, recipeCreatorBar, ingredientSelector);
+    }
+
+
     public Recipe getCreatedRecipe() {
         createdRecipe = recipeCreatorBar.getCreatedRecipe();
         createdRecipe.setIngredientsAmount(ingredientSelector.getSelectedIngredientAmount());
+
         return createdRecipe;
     }
 

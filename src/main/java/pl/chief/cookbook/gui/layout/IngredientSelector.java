@@ -7,21 +7,23 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.data.provider.Query;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.gui.components.MiddleNotification;
 import pl.chief.cookbook.gui.components.SelectedIngredientGrid;
 import pl.chief.cookbook.model.Ingredient;
+import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-@Component
+
 @Getter
 public class IngredientSelector extends VerticalLayout {
     private final IngredientService ingredientService;
@@ -30,6 +32,10 @@ public class IngredientSelector extends VerticalLayout {
     private Map<Integer, Double> selectedIngredientAmount;
     private List<Ingredient> selectedIngredientList;
     private NumberField amountBox;
+
+    public Map<Integer, Double> getSelectedIngredientAmount() {
+        return selectedIngredientAmount;
+    }
 
     @Autowired
     public IngredientSelector(IngredientService ingredientService) {
@@ -44,6 +50,24 @@ public class IngredientSelector extends VerticalLayout {
         add(upperBar, selectedIngredientLabel, selectedIngredientGrid);
     }
 
+
+    @Autowired
+    public IngredientSelector(IngredientService ingredientService, Recipe recipe) {
+        this.ingredientService = ingredientService;
+        selectedIngredientList = ingredientService.findIngredientsByRecipe(recipe);
+        selectedIngredientAmount = findIngredientAmountforRecipe(recipe);
+
+        HorizontalLayout upperBar = buildUpperBar();
+        Label selectedIngredientLabel = new Label("current selection:");
+        selectedIngredientGrid = new SelectedIngredientGrid();
+
+        selectedIngredientGrid.setItems(selectedIngredientList);
+        selectedIngredientGrid.setSelectedIngredientAmount(selectedIngredientAmount);
+
+        add(upperBar, selectedIngredientLabel, selectedIngredientGrid);
+    }
+
+
     private HorizontalLayout buildUpperBar() {
         HorizontalLayout upperBar = new HorizontalLayout();
         ingredientComboBox = buildIngredientComboBox();
@@ -52,6 +76,40 @@ public class IngredientSelector extends VerticalLayout {
         upperBar.add(ingredientComboBox, amountBox, addIngredientButton);
         upperBar.setAlignItems(Alignment.END);
         return upperBar;
+    }
+
+    private Button buildAddIngredientButton() {
+        Button createIngredientButton = new Button("add ingredient.");
+        createIngredientButton.addClickListener(click -> {
+            try {
+                Ingredient selectedIngredient = ingredientService.findIngredientByName(ingredientComboBox.getValue());
+                Double amount = amountBox.getValue();
+                addIngredientToSelectedIngredientGrid(selectedIngredient, amount);
+                System.out.println("3 " + this.getSelectedIngredientAmount().toString());
+                MiddleNotification notification = new MiddleNotification("Ingredient successfully added");
+                notification.open();
+            } catch (EntityAlreadyExistException e) {
+                MiddleNotification notification = new MiddleNotification("Ingredient already added");
+                notification.open();
+            }
+
+        });
+        return createIngredientButton;
+    }
+
+    private void addIngredientToSelectedIngredientGrid(Ingredient selectedIngredient, Double amount) throws EntityAlreadyExistException {
+        checkIfIngredientIsAlreadySelected(selectedIngredient);
+        selectedIngredientAmount.put(selectedIngredient.getId(), amount);
+
+
+        selectedIngredientList = selectedIngredientGrid
+                .getDataProvider()
+                .fetch(new Query<>())
+                .collect(Collectors.toList());
+        selectedIngredientList.add(selectedIngredient);
+        selectedIngredientGrid.setItems(selectedIngredientList);
+        selectedIngredientGrid.setSelectedIngredientAmount(selectedIngredientAmount);
+
     }
 
     private ComboBox<String> buildIngredientComboBox() {
@@ -66,35 +124,21 @@ public class IngredientSelector extends VerticalLayout {
         return ingredientService.findUnitByIngredientName(ingredientName).name().toLowerCase();
     }
 
-    private void addIngredientToSelectedIngredientGrid(Ingredient selectedIngredient, Double amount) throws EntityAlreadyExistException {
-        checkIfIngredientIsAlreadySelected(selectedIngredient);
-        selectedIngredientList.add(selectedIngredient);
-        selectedIngredientAmount.put(selectedIngredient.getId(), amount);
-        selectedIngredientGrid.setSelectedIngredientAmount(selectedIngredientAmount);
-        selectedIngredientGrid.setItems(selectedIngredientList);
-    }
-
     private void checkIfIngredientIsAlreadySelected(Ingredient ingredient) throws EntityAlreadyExistException {
-        if (selectedIngredientList.contains(ingredient)) {
+        if (selectedIngredientList != null && selectedIngredientList.contains(ingredient)) {
             throw new EntityAlreadyExistException(ingredient.getName());
         }
+
     }
 
-    private Button buildAddIngredientButton() {
-        Button createIngredientButton = new Button("add ingredient.");
-        createIngredientButton.addClickListener(click -> {
-            try {
-                Ingredient selectedIngredient = ingredientService.findIngredientByName(ingredientComboBox.getValue());
-                Double amount = amountBox.getValue();
-                addIngredientToSelectedIngredientGrid(selectedIngredient, amount);
-                MiddleNotification notification = new MiddleNotification("Ingredient successfully added");
-                notification.open();
-            } catch (EntityAlreadyExistException e) {
-                MiddleNotification notification = new MiddleNotification("Ingredient already added");
-                notification.open();
-            }
-
-        });
-        return createIngredientButton;
+    private Map<Integer, Double> findIngredientAmountforRecipe(Recipe recipe) {
+        selectedIngredientAmount = new HashMap<>();
+        for (Ingredient ingredient : ingredientService.findIngredientsByRecipe(recipe)) {
+            int ingredientId = ingredient.getId();
+            Double ingredientAmount = ingredientService.findIngredientAmountByIngredientIdAndRecipeId(ingredientId, recipe.getId());
+            selectedIngredientAmount.put(ingredientId, ingredientAmount);
+        }
+        return selectedIngredientAmount;
     }
+
 }

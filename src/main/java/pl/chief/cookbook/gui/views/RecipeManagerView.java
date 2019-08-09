@@ -17,33 +17,32 @@ import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.exception.NotNumberException;
+import pl.chief.cookbook.exception.RecipeNotFoundException;
 import pl.chief.cookbook.gui.components.BoldLabel;
 import pl.chief.cookbook.gui.components.MiddleNotification;
 import pl.chief.cookbook.gui.layout.MenuLayout;
-import pl.chief.cookbook.gui.layout.RecipeCreatorLayout;
-import pl.chief.cookbook.gui.layout.RecipeEditor;
+import pl.chief.cookbook.gui.layout.RecipeCreator;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 import pl.chief.cookbook.service.RecipeService;
 
 
 @Route("recipe-manager")
-public class RecipeManager extends VerticalLayout {
+public class RecipeManagerView extends VerticalLayout {
 
     private final RecipeService recipeService;
     private final IngredientService ingredientService;
     private Grid<Recipe> recipeGrid;
-    private RecipeCreatorLayout recipeCreatorLayout;
+    private RecipeCreator recipeCreator;
     private Dialog dialog;
 
     @Autowired
-    RecipeManager(RecipeService recipeService, IngredientService ingredientService) {
+    RecipeManagerView(RecipeService recipeService, IngredientService ingredientService) {
         this.recipeService = recipeService;
         this.ingredientService = ingredientService;
-        this.recipeCreatorLayout = new RecipeCreatorLayout(ingredientService);
 
         AppLayout appLayout = new AppLayout();
-        MenuLayout menuLayout = new MenuLayout(appLayout);
+        new MenuLayout(appLayout);
         VerticalLayout appContent = new VerticalLayout();
 
         VerticalLayout recipeCreatorButton = new VerticalLayout();
@@ -54,7 +53,6 @@ public class RecipeManager extends VerticalLayout {
         Label recipeLabel = new BoldLabel("List of recipes:");
         this.recipeGrid = buildAllRecipeGrid();
         appContent.add(recipeLabel, recipeGrid, new Hr(), recipeCreatorButton);
-        appContent.setWidth("80%");
         appLayout.setContent(appContent);
 
         add(appLayout);
@@ -66,12 +64,10 @@ public class RecipeManager extends VerticalLayout {
         recipeGrid.setColumns("name", "description", "calories", "recipeCategory");
         recipeGrid.getColumnByKey("calories").setHeader("kcal");
         recipeGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("remove");
-        recipeGrid.addItemClickListener(event -> {
-            int id = event.getItem().getId();
-            Dialog dialog = new Dialog();
+        recipeGrid.addItemClickListener(click -> {
+            Recipe recipe = click.getItem();
+            dialog = buildCreatorDialog(recipe);
             dialog.open();
-            RecipeEditor recipeEditor1 = new RecipeEditor(recipeService, ingredientService, recipeService.findRecipeById(id), dialog);
-            dialog.add(recipeEditor1);
         });
         return recipeGrid;
     }
@@ -94,7 +90,7 @@ public class RecipeManager extends VerticalLayout {
     private Button buildCreateButton() {
         Button button = new Button("Create new recipe");
         button.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        button.addClickListener(event -> {
+        button.addClickListener(click -> {
             dialog = buildCreatorDialog();
             dialog.open();
         });
@@ -104,17 +100,27 @@ public class RecipeManager extends VerticalLayout {
     private Dialog buildCreatorDialog() {
         Dialog dialog = new Dialog();
         HorizontalLayout buttonBar = new HorizontalLayout();
+        recipeCreator = new RecipeCreator(ingredientService);
         buttonBar.add(buildSaveButton(), buildCloseButton());
-        dialog.add(recipeCreatorLayout, buttonBar);
+        dialog.add(recipeCreator, buttonBar);
+        return dialog;
+    }
+
+    private Dialog buildCreatorDialog(Recipe recipe) {
+        Dialog dialog = new Dialog();
+        HorizontalLayout buttonBar = new HorizontalLayout();
+        recipeCreator = new RecipeCreator(ingredientService, recipe);
+        buttonBar.add(buildUpdateButton(recipe), buildCloseButton());
+        dialog.add(recipeCreator, buttonBar);
         return dialog;
     }
 
     private Button buildSaveButton() {
         Button button = new Button("create recipe");
         button.setIcon(IronIcons.SAVE.create());
-        button.addClickListener(event -> {
+        button.addClickListener(click -> {
             try {
-                Recipe recipe = recipeCreatorLayout.getCreatedRecipe();
+                Recipe recipe = recipeCreator.getCreatedRecipe();
                 recipeService.addRecipe(recipe);
                 dialog.close();
                 reloadGrid();
@@ -129,10 +135,30 @@ public class RecipeManager extends VerticalLayout {
         return button;
     }
 
+    private Button buildUpdateButton(Recipe existingRecipe) {
+        Button button = new Button("update recipe");
+        button.setIcon(IronIcons.SAVE.create());
+        button.addClickListener(click -> {
+            try {
+                Recipe recipe = recipeCreator.getCreatedRecipe();
+                recipeService.updateRecipe(recipe, existingRecipe.getId());
+                dialog.close();
+                reloadGrid();
+                Notification notification = new MiddleNotification("Recipe sucessfully updated");
+                notification.open();
+            } catch (RecipeNotFoundException e) {
+                Notification notification = new MiddleNotification(e.getMessage());
+                notification.open();
+            }
+        });
+        return button;
+    }
+
+
     private Button buildCloseButton() {
         Button button = new Button("close");
         button.setIcon(IronIcons.CANCEL.create());
-        button.addClickListener(event -> {
+        button.addClickListener(click -> {
             dialog.close();
             reloadGrid();
         });

@@ -4,7 +4,9 @@ import com.vaadin.flow.component.grid.Grid;
 import lombok.Getter;
 import lombok.Setter;
 import pl.chief.cookbook.model.Ingredient;
+import pl.chief.cookbook.model.Recipe;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -15,12 +17,13 @@ public class SelectedIngredientGrid extends Grid<Ingredient> {
 
     public SelectedIngredientGrid() {
         super(Ingredient.class);
-        //selectedIngredientAmount = new HashMap<>();
         this.removeColumnByKey("recipes");
         this.setColumns("name", "ingredientCategory");
         this.addColumn(ingredient -> selectedIngredientAmount.get(ingredient.getId())).setHeader("Amount");
         this.addColumn(Ingredient::getUnit).setHeader("Unit");
-       this.setWidth("80%");
+        this.setWidth("80%");
         this.setHeightByRows(true);
     }
+
+
 }

@@ -16,5 +16,8 @@ public enum RecipeCategory {
     PIZZA,
     SNACK,
     SAUCE,
-    THERMOMIX;
+    THERMOMIX,
+    PANCAKES,
+    BREAKFEST
+
 }

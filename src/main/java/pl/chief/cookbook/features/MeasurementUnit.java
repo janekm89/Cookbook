@@ -5,5 +5,5 @@ public enum MeasurementUnit {
     KILOGRAM,
     LITER,
     MILILITER,
-    PCS;
+    PCS
 }

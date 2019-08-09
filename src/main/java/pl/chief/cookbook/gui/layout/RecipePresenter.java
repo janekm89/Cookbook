@@ -14,13 +14,13 @@ import java.util.List;
 
 
 @Route("recipe")
-public class RecipeView extends VerticalLayout {
+public class RecipePresenter extends VerticalLayout {
     private Recipe recipe;
     private Grid recipeIngredientsTable;
 
 
     @Autowired
-    public RecipeView(RecipeService recipeService, IngredientService ingredientService, int recipeId) {
+    public RecipePresenter(RecipeService recipeService, IngredientService ingredientService, int recipeId) {
         recipe = recipeService.findRecipeById(recipeId);
         Label nameLabel = new Label(recipe.getName());
         nameLabel.getStyle().set("font-weight", "bold");
