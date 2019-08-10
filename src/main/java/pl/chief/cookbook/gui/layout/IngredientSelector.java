@@ -131,14 +131,14 @@ public class IngredientSelector extends VerticalLayout {
 
     }
 
-    private Map<Integer, Double> findIngredientAmountForRecipe(Recipe recipe) {
-        selectedIngredientAmount = new HashMap<>();
+    public Map<Integer, Double> findIngredientAmountForRecipe(Recipe recipe) {
+        Map<Integer, Double> selectedIngredientAmountToReturn = new HashMap<>();
         for (Ingredient ingredient : ingredientService.findIngredientsByRecipe(recipe)) {
             int ingredientId = ingredient.getId();
             Double ingredientAmount = ingredientService.findIngredientAmountByIngredientIdAndRecipeId(ingredientId, recipe.getId());
-            selectedIngredientAmount.put(ingredientId, ingredientAmount);
+            selectedIngredientAmountToReturn.put(ingredientId, ingredientAmount);
         }
-        return selectedIngredientAmount;
+        return selectedIngredientAmountToReturn;
     }
 
 }

@@ -140,7 +140,7 @@ public class RecipeManagerView extends VerticalLayout {
         button.setIcon(IronIcons.SAVE.create());
         button.addClickListener(click -> {
             try {
-                Recipe recipe = recipeCreator.getCreatedRecipe();
+                Recipe recipe = recipeCreator.getCreatedRecipe(existingRecipe);
                 recipeService.updateRecipe(recipe, existingRecipe.getId());
                 dialog.close();
                 reloadGrid();

@@ -7,12 +7,16 @@ import pl.chief.cookbook.gui.components.BoldLabel;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Getter
 public class RecipeCreator extends VerticalLayout {
     private final IngredientService ingredientService;
     private IngredientSelector ingredientSelector;
     private RecipeCreatorBar recipeCreatorBar;
     private Recipe createdRecipe;
+    private Map<Integer, Double> selectedIngredientAmount;
 
 
     @Autowired
@@ -45,5 +49,14 @@ public class RecipeCreator extends VerticalLayout {
         return createdRecipe;
     }
 
+
+    public Recipe getCreatedRecipe(Recipe existingRecipe) {
+        createdRecipe = recipeCreatorBar.getCreatedRecipe();
+        selectedIngredientAmount = new HashMap<>();
+        selectedIngredientAmount.putAll(ingredientSelector.findIngredientAmountForRecipe(existingRecipe));
+        selectedIngredientAmount.putAll(ingredientSelector.getSelectedIngredientAmount());
+        createdRecipe.setIngredientsAmount(selectedIngredientAmount);
+        return createdRecipe;
+    }
 
 }
