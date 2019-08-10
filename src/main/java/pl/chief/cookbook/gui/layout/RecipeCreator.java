@@ -4,12 +4,8 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.chief.cookbook.gui.components.BoldLabel;
-import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 public class RecipeCreator extends VerticalLayout {

@@ -81,7 +81,7 @@ public class RecipeManagerView extends VerticalLayout {
         button.addClickListener(event -> {
             recipeService.deleteRecipe(recipe);
             reloadGrid();
-            Notification notification = new MiddleNotification("Recipe sucessfully removed from database");
+            Notification notification = new MiddleNotification("Recipe successfully removed from database");
             notification.open();
         });
         return button;
@@ -124,7 +124,7 @@ public class RecipeManagerView extends VerticalLayout {
                 recipeService.addRecipe(recipe);
                 dialog.close();
                 reloadGrid();
-                Notification notification = new MiddleNotification("Recipe sucessfully added to database");
+                Notification notification = new MiddleNotification("Recipe successfully added to database");
                 notification.open();
             } catch (NotNumberException | EntityAlreadyExistException e) {
                 Notification notification = new MiddleNotification(e.getMessage());
@@ -144,7 +144,7 @@ public class RecipeManagerView extends VerticalLayout {
                 recipeService.updateRecipe(recipe, existingRecipe.getId());
                 dialog.close();
                 reloadGrid();
-                Notification notification = new MiddleNotification("Recipe sucessfully updated");
+                Notification notification = new MiddleNotification("Recipe successfully updated");
                 notification.open();
             } catch (RecipeNotFoundException e) {
                 Notification notification = new MiddleNotification(e.getMessage());

@@ -36,7 +36,7 @@ class RecipeCreatorBar extends HorizontalLayout {
         this.caloriesField.setValue((double) recipe.getCalories());
     }
 
-    Recipe getCreatedRecipe(){
+   public Recipe getCreatedRecipe(){
         Recipe recipe = new Recipe();
         recipe.setName(nameField.getValue());
         recipe.setDescription(descriptionField.getValue());

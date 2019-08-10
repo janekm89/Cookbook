@@ -2,7 +2,6 @@ package pl.chief.cookbook.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import pl.chief.cookbook.features.IngredientCategory;
@@ -11,7 +10,6 @@ import pl.chief.cookbook.features.MeasurementUnit;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
 @Entity

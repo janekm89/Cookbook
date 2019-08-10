@@ -4,9 +4,7 @@ import com.vaadin.flow.component.grid.Grid;
 import lombok.Getter;
 import lombok.Setter;
 import pl.chief.cookbook.model.Ingredient;
-import pl.chief.cookbook.model.Recipe;
 
-import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -24,6 +22,7 @@ public class SelectedIngredientGrid extends Grid<Ingredient> {
         this.setWidth("80%");
         this.setHeightByRows(true);
     }
+
 
 
 }

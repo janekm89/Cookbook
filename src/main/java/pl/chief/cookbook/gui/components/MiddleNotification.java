@@ -12,4 +12,8 @@ public class MiddleNotification extends Notification {
        this();
        this.setText(message);
    }
+    public MiddleNotification(String message, int duration){
+        this(message);
+        this.setDuration(duration);
+    }
 }

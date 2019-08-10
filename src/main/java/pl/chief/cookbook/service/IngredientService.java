@@ -57,7 +57,11 @@ public class IngredientService {
         return ingredientRepository.findByNameIn(ingredientNames);
     }
 
-    public double findIngredientAmountByIngredientIdAndRecipeId(int ingredientId, int recipeId) {
+    public double findIngredientAmountByIngredientIdAndRecipeId(Integer ingredientId, Integer recipeId) {
+        if(ingredientId == null)
+            throw new NullPointerException("Ingredient id is null");
+        if(recipeId == null)
+            throw new NullPointerException("Recipe id is null");
         return ingredientRepository.findIngredientAmountInRecipe(ingredientId, recipeId);
     }
 

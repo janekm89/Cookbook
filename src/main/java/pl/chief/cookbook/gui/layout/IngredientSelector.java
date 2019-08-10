@@ -55,7 +55,7 @@ public class IngredientSelector extends VerticalLayout {
     public IngredientSelector(IngredientService ingredientService, Recipe recipe) {
         this.ingredientService = ingredientService;
         selectedIngredientList = ingredientService.findIngredientsByRecipe(recipe);
-        selectedIngredientAmount = findIngredientAmountforRecipe(recipe);
+        selectedIngredientAmount = findIngredientAmountForRecipe(recipe);
 
         HorizontalLayout upperBar = buildUpperBar();
         Label selectedIngredientLabel = new Label("current selection:");
@@ -86,7 +86,7 @@ public class IngredientSelector extends VerticalLayout {
                 Double amount = amountBox.getValue();
                 addIngredientToSelectedIngredientGrid(selectedIngredient, amount);
                 System.out.println("3 " + this.getSelectedIngredientAmount().toString());
-                MiddleNotification notification = new MiddleNotification("Ingredient successfully added");
+                MiddleNotification notification = new MiddleNotification("Ingredient successfully added", 1000);
                 notification.open();
             } catch (EntityAlreadyExistException e) {
                 MiddleNotification notification = new MiddleNotification("Ingredient already added");
@@ -131,7 +131,7 @@ public class IngredientSelector extends VerticalLayout {
 
     }
 
-    private Map<Integer, Double> findIngredientAmountforRecipe(Recipe recipe) {
+    private Map<Integer, Double> findIngredientAmountForRecipe(Recipe recipe) {
         selectedIngredientAmount = new HashMap<>();
         for (Ingredient ingredient : ingredientService.findIngredientsByRecipe(recipe)) {
             int ingredientId = ingredient.getId();
