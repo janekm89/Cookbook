@@ -39,8 +39,7 @@ public class RecipePresenter extends VerticalLayout {
         recipeIngredientsTable.removeColumnByKey("id");
         recipeIngredientsTable.setColumns("name", "unit");
 
-        recipeIngredientsTable.addColumn(o -> ingredientService
-                .findIngredientAmountByIngredientIdAndRecipeId(listOfIngredientsInRecipe.listIterator().next().getId(), recipe.getId()))
+        recipeIngredientsTable.addColumn(o -> ingredientService.findIngredientAmountByIngredientIdAndRecipeId(((Ingredient)o).getId(), recipe.getId()))
                 .setHeader("Amount");
         recipeIngredientsTable.setHeightByRows(true);
 
