@@ -8,6 +8,7 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.data.provider.Query;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
@@ -33,10 +34,6 @@ public class IngredientSelector extends VerticalLayout {
     private List<Ingredient> selectedIngredientList;
     private NumberField amountBox;
 
-    public Map<Integer, Double> getSelectedIngredientAmount() {
-        return selectedIngredientAmount;
-    }
-
     @Autowired
     public IngredientSelector(IngredientService ingredientService) {
         this.ingredientService = ingredientService;
@@ -46,7 +43,8 @@ public class IngredientSelector extends VerticalLayout {
         HorizontalLayout upperBar = buildUpperBar();
         Label selectedIngredientLabel = new Label("current selection:");
         selectedIngredientGrid = new SelectedIngredientGrid();
-
+        selectedIngredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("Remove Ingredient");
+        reloadGrid();
         add(upperBar, selectedIngredientLabel, selectedIngredientGrid);
     }
 
@@ -60,11 +58,30 @@ public class IngredientSelector extends VerticalLayout {
         HorizontalLayout upperBar = buildUpperBar();
         Label selectedIngredientLabel = new Label("current selection:");
         selectedIngredientGrid = new SelectedIngredientGrid();
-
-        selectedIngredientGrid.setItems(selectedIngredientList);
+        selectedIngredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("Remove Ingredient");
+        reloadGrid();
         selectedIngredientGrid.setSelectedIngredientAmount(selectedIngredientAmount);
 
         add(upperBar, selectedIngredientLabel, selectedIngredientGrid);
+    }
+
+    public Map<Integer, Double> getSelectedIngredientAmount() {
+        return selectedIngredientAmount;
+    }
+
+    private Button buildDeleteButton(Ingredient ingredient) {
+        Button button = new Button("Remove");
+        button.addClickListener(
+                buttonClickEvent -> {
+                    selectedIngredientList.remove(ingredient);
+                    selectedIngredientAmount.remove(ingredient.getId());
+                    reloadGrid();
+                });
+        return button;
+    }
+
+    private void reloadGrid(){
+        selectedIngredientGrid.setItems(selectedIngredientList);
     }
 
 
@@ -107,7 +124,7 @@ public class IngredientSelector extends VerticalLayout {
                 .fetch(new Query<>())
                 .collect(Collectors.toList());
         selectedIngredientList.add(selectedIngredient);
-        selectedIngredientGrid.setItems(selectedIngredientList);
+        reloadGrid();
         selectedIngredientGrid.setSelectedIngredientAmount(selectedIngredientAmount);
 
     }
