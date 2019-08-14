@@ -21,8 +21,7 @@ public class SelectedIngredientGrid extends Grid<Ingredient> {
         this.addColumn(Ingredient::getUnit).setHeader("Unit");
         this.setWidth("80%");
         this.setHeightByRows(true);
+
     }
-
-
 
 }

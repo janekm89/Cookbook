@@ -1,7 +1,9 @@
 package pl.chief.cookbook.gui.layout;
 
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -33,6 +35,8 @@ public class IngredientSelector extends VerticalLayout {
     private Map<Integer, Double> selectedIngredientAmount;
     private List<Ingredient> selectedIngredientList;
     private NumberField amountBox;
+    private Dialog ingredientAmountDialog;
+
 
     @Autowired
     public IngredientSelector(IngredientService ingredientService) {
@@ -42,8 +46,7 @@ public class IngredientSelector extends VerticalLayout {
 
         HorizontalLayout upperBar = buildUpperBar();
         Label selectedIngredientLabel = new Label("current selection:");
-        selectedIngredientGrid = new SelectedIngredientGrid();
-        selectedIngredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("Remove Ingredient");
+        setIngredientGridProperties();
         reloadGrid();
         add(upperBar, selectedIngredientLabel, selectedIngredientGrid);
     }
@@ -57,10 +60,9 @@ public class IngredientSelector extends VerticalLayout {
 
         HorizontalLayout upperBar = buildUpperBar();
         Label selectedIngredientLabel = new Label("current selection:");
-        selectedIngredientGrid = new SelectedIngredientGrid();
-        selectedIngredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("Remove Ingredient");
-        reloadGrid();
+        setIngredientGridProperties();
         selectedIngredientGrid.setSelectedIngredientAmount(selectedIngredientAmount);
+        reloadGrid();
 
         add(upperBar, selectedIngredientLabel, selectedIngredientGrid);
     }
@@ -80,10 +82,41 @@ public class IngredientSelector extends VerticalLayout {
         return button;
     }
 
-    private void reloadGrid(){
+    private void reloadGrid() {
         selectedIngredientGrid.setItems(selectedIngredientList);
     }
 
+    private void setIngredientGridProperties() {
+        selectedIngredientGrid = new SelectedIngredientGrid();
+        selectedIngredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("Remove Ingredient");
+        selectedIngredientGrid.addItemClickListener(click -> {
+            Ingredient ingredient = click.getItem();
+            ingredientAmountDialog = buildIngredientAmountDialog(ingredient);
+            ingredientAmountDialog.open();
+        });
+    }
+
+    private Dialog buildIngredientAmountDialog(Ingredient ingredient) {
+        Dialog dialog = new Dialog();
+        HorizontalLayout editAmountBar = new HorizontalLayout();
+        amountBox = new NumberField();
+        amountBox.setPlaceholder("amount");
+        Button editAmountButton = buildEditAmountButton(ingredient);
+        editAmountBar.add(amountBox, editAmountButton);
+        dialog.add(editAmountBar);
+        return dialog;
+    }
+
+    private Button buildEditAmountButton(Ingredient ingredient) {
+        Button button = new Button("Edit amount");
+        button.addClickShortcut(Key.ENTER);
+        button.addClickListener(click -> {
+            selectedIngredientAmount.put(ingredient.getId(), amountBox.getValue());
+            ingredientAmountDialog.close();
+            reloadGrid();
+        });
+        return button;
+    }
 
     private HorizontalLayout buildUpperBar() {
         HorizontalLayout upperBar = new HorizontalLayout();
