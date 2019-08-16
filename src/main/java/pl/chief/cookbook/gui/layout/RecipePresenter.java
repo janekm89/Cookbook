@@ -28,11 +28,11 @@ public class RecipePresenter extends VerticalLayout {
         Label descriptionLabel = new Label(recipe.getDescription());
         recipeIngredientsTable = new Grid(Ingredient.class);
 
-        setRecipeIngredientTableProperties(ingredientService.findIngredientsByRecipe(recipe), ingredientService);
+        setRecipeIngredientTableProperties(ingredientService);
         add(nameLabel, descriptionLabel, recipeIngredientsTable);
     }
 
-    private void setRecipeIngredientTableProperties(List<Ingredient> listOfIngredientsInRecipe, IngredientService ingredientService) {
+    private void setRecipeIngredientTableProperties(IngredientService ingredientService) {
         recipeIngredientsTable.setItems(ingredientService.findIngredientsByRecipe(recipe));
         recipeIngredientsTable.removeColumnByKey("recipes");
         recipeIngredientsTable.removeColumnByKey("ingredientCategory");
