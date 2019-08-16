@@ -116,7 +116,7 @@ public class RecipeBrowserView extends VerticalLayout {
 
     private void searchByNameFieldIfNeeded(List<Recipe> allRecipes) {
         if (!recipeNameTextField.getValue().isEmpty()) {
-            retainCollectionsIfNotEmpty(allRecipes, recipeService.findRecipeByName("%" + recipeNameTextField.getValue() + "%"));
+            retainCollectionsIfNotEmpty(allRecipes, recipeService.findRecipeByNameLike("%" + recipeNameTextField.getValue() + "%"));
         }
     }
 
