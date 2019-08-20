@@ -32,6 +32,7 @@ public class Ingredient {
     @Enumerated(EnumType.ORDINAL)
     @Column(name = "category")
     private IngredientCategory ingredientCategory;
+    private int user_id;
 
     public Ingredient() {
         recipes = new ArrayList<>();

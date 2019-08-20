@@ -4,9 +4,11 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import lombok.Getter;
 import lombok.Setter;
+import pl.chief.cookbook.builder.RecipeBuilder;
 import pl.chief.cookbook.gui.components.CaloriesField;
 import pl.chief.cookbook.gui.components.DescriptionField;
 import pl.chief.cookbook.gui.components.RecipeCategoryComboBox;
+import pl.chief.cookbook.gui.security.UserAccess;
 import pl.chief.cookbook.model.Recipe;
 
 @Setter
@@ -36,12 +38,12 @@ class RecipeCreatorBar extends HorizontalLayout {
         this.caloriesField.setValue((double) recipe.getCalories());
     }
 
-   public Recipe getCreatedRecipe(){
-        Recipe recipe = new Recipe();
-        recipe.setName(nameField.getValue());
-        recipe.setDescription(descriptionField.getValue());
-        recipe.setRecipeCategory(recipeCategoryComboBox.getValue());
-        recipe.setCalories(caloriesField.getValue().intValue());
-        return recipe;
+    public Recipe getCreatedRecipe() {
+        return new RecipeBuilder()
+                .withName(nameField.getValue())
+                .withDescription(descriptionField.getValue())
+                .withCategory(recipeCategoryComboBox.getValue())
+                .withCalories(caloriesField.getValue().intValue())
+                .withUserId(UserAccess.loggedUserId()).createRecipe();
     }
 }

@@ -2,12 +2,13 @@ package pl.chief.cookbook.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
-import pl.chief.cookbook.features.UserRole;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -19,19 +20,24 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+    @NotEmpty(message = "*Please provide your name")
     private String name;
-    private String login;
+    @NotEmpty(message = "*Please provide your username")
+    private String username;
     private String surname;
+    @NotEmpty(message = "*Please provide a valid Email")
     private String email;
+    @Length(min = 5, message = "*Your password must have at least 5 characters")
+    @NotEmpty(message = "*Please provide your password")
     private String password;
-    @Enumerated(EnumType.ORDINAL)
-    private UserRole userRole;
+    private String role;
     @OneToMany
     @JoinColumn(name = "user_id")
     private List<Recipe> recipes;
     @OneToMany
     @JoinColumn(name = "user_id")
     private List<Ingredient> ingredients;
+    private int active;
 
     public User() {
         recipes = new ArrayList<>();
@@ -41,12 +47,13 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return AuthorityUtils.
-                commaSeparatedStringToAuthorityList(this.userRole.toString());
+                commaSeparatedStringToAuthorityList(this.role);
     }
+
 
     @Override
     public String getUsername() {
-        return this.login;
+        return this.username;
     }
 
     @Override

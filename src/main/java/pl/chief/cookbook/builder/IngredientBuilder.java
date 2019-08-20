@@ -90,6 +90,11 @@ public class IngredientBuilder {
         return this;
     }
 
+    public IngredientBuilder withUserId(int id){
+        ingredient.setUser_id(id);
+        return this;
+    }
+
     public Ingredient createIngredient(){
         return ingredient;
     }
