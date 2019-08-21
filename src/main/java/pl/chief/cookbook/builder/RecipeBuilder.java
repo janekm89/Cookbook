@@ -139,5 +139,9 @@ public class RecipeBuilder {
         return this;
     }
 
+    public RecipeBuilder withUserId(int id){
+        recipe.setUser_id(id);
+        return this;
+    }
 
 }

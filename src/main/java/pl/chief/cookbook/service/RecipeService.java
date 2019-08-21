@@ -53,8 +53,12 @@ public class RecipeService {
         return new ArrayList<>(recipeRepository.findAll());
     }
 
-    public List<Recipe> findRecipeByName(String name) {
+    public List<Recipe> findRecipeByNameLike(String name) {
         return recipeRepository.findByNameLike(name);
+    }
+
+    public Recipe findRecipeByName(String name) throws RecipeNotFoundException {
+        return recipeRepository.findByName(name).orElseThrow(RecipeNotFoundException::new);
     }
 
     public List<Recipe> findRecipeByDescription(String description) {

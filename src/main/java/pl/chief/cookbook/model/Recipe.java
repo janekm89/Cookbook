@@ -41,6 +41,7 @@ public class Recipe {
     @JsonProperty("Ingredients - Amounts")
     private Map<Integer, Double> ingredientsAmount;
     private int calories;
+    private int user_id;
 
     public Recipe() {
         this.ingredients = new HashSet<>();

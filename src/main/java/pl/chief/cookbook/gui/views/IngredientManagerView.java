@@ -12,11 +12,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import pl.chief.cookbook.builder.IngredientBuilder;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.features.IngredientCategory;
 import pl.chief.cookbook.features.MeasurementUnit;
 import pl.chief.cookbook.gui.components.MiddleNotification;
 import pl.chief.cookbook.gui.layout.MenuLayout;
+import pl.chief.cookbook.gui.security.UserAccess;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.service.IngredientService;
 
@@ -36,16 +38,15 @@ public class IngredientManagerView extends VerticalLayout {
         this.ingredientService = ingredientService;
 
         AppLayout appLayout = new AppLayout();
-        MenuLayout menuLayout = new MenuLayout(appLayout);
+        new MenuLayout(appLayout);
 
         setFields();
-        createIngredientGrid(ingredientService);
+        this.ingredientGrid = createIngredientGrid();
         setIngredientEditorLayout();
 
         VerticalLayout layoutContent = new VerticalLayout();
         layoutContent.add(ingredientEditor, ingredientGrid);
-        layoutContent.setHeightFull();
-
+        layoutContent.setWidthFull();
         appLayout.setContent(layoutContent);
         add(appLayout);
     }
@@ -115,6 +116,7 @@ public class IngredientManagerView extends VerticalLayout {
             ingredient.setName(nameField.getValue());
             ingredient.setUnit(unitComboBox.getValue());
             ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
+            ingredient.setUser_id(UserAccess.loggedUserId());
             editIngredient(ingredient);
             MiddleNotification notification = new MiddleNotification("Ingredient edited in database");
             notification.open();
@@ -128,10 +130,12 @@ public class IngredientManagerView extends VerticalLayout {
         addButton.addClickListener(
                 event -> {
                     try {
-                        Ingredient ingredient = new Ingredient();
-                        ingredient.setName(nameField.getValue());
-                        ingredient.setUnit(unitComboBox.getValue());
-                        ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
+                        Ingredient ingredient = new IngredientBuilder()
+                                .withName(nameField.getValue())
+                                .withUnit(unitComboBox.getValue())
+                                .withCategory(ingredientCategoryComboBox.getValue())
+                                .withUserId(UserAccess.loggedUserId())
+                                .createIngredient();
                         ingredientService.addIngredient(ingredient);
                         ingredientGrid.setItems(ingredientService.findAllIngredients());
                         MiddleNotification notification = new MiddleNotification("Ingredient successfully added to database");
@@ -160,7 +164,7 @@ public class IngredientManagerView extends VerticalLayout {
         ingredientCategoryComboBox.setItems(IngredientCategory.values());
     }
 
-    public void createIngredientGrid(IngredientService ingredientService) {
+    public Grid<Ingredient> createIngredientGrid() {
         ingredientGrid = new Grid<>(Ingredient.class);
         ingredientGrid.setItems(ingredientService.findAllIngredients());
         ingredientGrid.removeColumnByKey("recipes");
@@ -168,8 +172,10 @@ public class IngredientManagerView extends VerticalLayout {
         ingredientGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("Remove");
         ingredientGrid.addColumn(new ComponentRenderer<>(this::buildEditButton)).setHeader("Edit");
         ingredientGrid.getColumns()
-                .forEach(column -> column.setWidth("250px"));
-        ingredientGrid.setHeightFull();
+                .forEach(column -> column.setWidth("200px"));
+        ingredientGrid.setHeightByRows(true);
+        ingredientGrid.setWidthFull();
+        return ingredientGrid;
     }
 }
 
