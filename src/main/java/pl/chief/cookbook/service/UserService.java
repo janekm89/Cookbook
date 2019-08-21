@@ -1,7 +1,6 @@
 package pl.chief.cookbook.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,7 +10,6 @@ import pl.chief.cookbook.exception.UserEmailNotFoundException;
 import pl.chief.cookbook.model.User;
 import pl.chief.cookbook.repository.UserRepository;
 import pl.chief.cookbook.security.PasswordEncoderConfiguration;
-import pl.chief.cookbook.security.SecurityConfiguration;
 
 import java.util.Optional;
 

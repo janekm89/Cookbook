@@ -6,7 +6,6 @@ import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
 import org.springframework.stereotype.Component;
 import pl.chief.cookbook.gui.views.LoginView;
-import pl.chief.cookbook.gui.views.RecipeBrowserView;
 
 @Component
 public class ConfigureUIServiceInitListener implements VaadinServiceInitListener {

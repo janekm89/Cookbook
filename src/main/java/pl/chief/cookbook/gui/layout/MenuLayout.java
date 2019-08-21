@@ -1,20 +1,14 @@
 package pl.chief.cookbook.gui.layout;
 
-import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.AppLayoutMenu;
 import com.vaadin.flow.component.applayout.AppLayoutMenuItem;
-import com.vaadin.flow.component.applayout.MenuItemClickEvent;
-import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import pl.chief.cookbook.gui.views.Registration;
 import pl.chief.cookbook.model.User;
 import pl.chief.cookbook.util.ImagePath;

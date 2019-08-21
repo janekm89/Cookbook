@@ -10,8 +10,6 @@ import pl.chief.cookbook.model.Recipe;
 import pl.chief.cookbook.service.IngredientService;
 import pl.chief.cookbook.service.RecipeService;
 
-import java.util.List;
-
 
 @Route("recipe")
 public class RecipePresenter extends VerticalLayout {

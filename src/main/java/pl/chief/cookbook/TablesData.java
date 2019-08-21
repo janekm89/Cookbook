@@ -1,7 +1,5 @@
 package pl.chief.cookbook;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import pl.chief.cookbook.builder.IngredientBuilder;
 import pl.chief.cookbook.builder.RecipeBuilder;
 import pl.chief.cookbook.builder.UserBuilder;
