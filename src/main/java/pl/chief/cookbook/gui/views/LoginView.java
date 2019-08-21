@@ -1,7 +1,9 @@
 package pl.chief.cookbook.gui.views;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Tag;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -22,12 +24,12 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
     public LoginView() {
         AppLayout appLayout = new AppLayout();
         new MenuLayout(appLayout);
-        HorizontalLayout content = new HorizontalLayout();
+        VerticalLayout content = new VerticalLayout();
 
         loginForm.setAction("login");
         getElement().appendChild(loginForm.getElement());
-        content.setDefaultVerticalComponentAlignment(Alignment.CENTER);
         content.add(loginForm);
+        content.setAlignItems(Alignment.CENTER);
         appLayout.setContent(content);
         add(appLayout);
     }

@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,9 +24,12 @@ public class User implements UserDetails {
     @NotEmpty(message = "*Please provide your name")
     private String name;
     @NotEmpty(message = "*Please provide your username")
+    @Column(unique = true)
     private String username;
     private String surname;
     @NotEmpty(message = "*Please provide a valid Email")
+    @Email
+    @Column(unique = true)
     private String email;
     @Length(min = 5, message = "*Your password must have at least 5 characters")
     @NotEmpty(message = "*Please provide your password")

@@ -32,10 +32,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private void configureAuth(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService);
-        auth.inMemoryAuthentication()
-                .withUser("user2")
-                .password(encoder.passwordEncoder().encode("pass"))
-                .roles("USER");
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
                 .usersByUsernameQuery("select username, password, active from user where username=?")
@@ -60,9 +56,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 // Allow all flow internal requests.
                 .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()
 
-                .anyRequest().authenticated()
                 // Allow all requests by logged in users.
-                // .anyRequest().authenticated()
+                .anyRequest().authenticated()
 
                 // Configure the login page.
                 .and().formLogin().loginPage("/login").permitAll().loginProcessingUrl("/login")

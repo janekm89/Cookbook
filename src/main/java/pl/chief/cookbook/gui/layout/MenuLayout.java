@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import pl.chief.cookbook.gui.views.Registration;
 import pl.chief.cookbook.model.User;
 import pl.chief.cookbook.util.ImagePath;
 
@@ -48,7 +49,8 @@ public class MenuLayout extends AppLayoutMenu {
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))) {
             menu.addMenuItems(
                     new AppLayoutMenuItem(VaadinIcon.SEARCH.create(), "Find recipes", ""),
-                    new AppLayoutMenuItem(VaadinIcon.ENTER.create(), "Login", "login")
+                    new AppLayoutMenuItem(VaadinIcon.ENTER.create(), "Login", "login"),
+                    new AppLayoutMenuItem(VaadinIcon.PLUS.create(), "Register", Registration.ROUTE)
             );
         }
 

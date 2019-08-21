@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.chief.cookbook.builder.IngredientBuilder;
 import pl.chief.cookbook.builder.RecipeBuilder;
+import pl.chief.cookbook.builder.UserBuilder;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.exception.NotNumberException;
 import pl.chief.cookbook.features.IngredientCategory;
@@ -17,49 +18,52 @@ import pl.chief.cookbook.service.RecipeService;
 import pl.chief.cookbook.service.UserService;
 
 //* this class is to be removed after implementing user
-@Component
+//@Component
 public class TablesData {
     private RecipeService recipeService;
     private IngredientService ingredientService;
     private UserService userService;
 
-    @Autowired
+    //@Autowired
     public TablesData(RecipeService recipeService, IngredientService ingredientService, UserService userService) throws EntityAlreadyExistException, NotNumberException {
         this.recipeService = recipeService;
         this.ingredientService = ingredientService;
         this.userService = userService;
 
-        User user1 = new User();
-        user1.setEmail("wp@wp.pl");
-        user1.setName("admin");
-        user1.setUsername("admin");
-        user1.setPassword("admin1234");
-        user1.setSurname("adminowski");
-        user1.setRole("ADMIN");
-        user1.setActive(1);
-        userService.addUser(user1);
-        User user1DB = userService.findUserByUsername(user1.getUsername());
+        User marcin = new UserBuilder()
+                .withUsername("janekm89")
+                .withName("Marcin")
+                .withSurname("Jankiewicz")
+                .withEmail("marcin.jankiewicz@gmail.com")
+                .withPassword("pass1234")
+                .withRoleAdmin()
+                .activated()
+                .create();
+        userService.addUser(marcin);
+        User user1DB = userService.findUserByUsername(marcin.getUsername());
 
-        User user2 = new User();
-        user2.setEmail("wp1@wp.pl");
-        user2.setName("user");
-        user2.setUsername("user");
-        user2.setPassword("user1234");
-        user2.setSurname("userski");
-        user2.setRole("USER");
-        user2.setActive(1);
-        userService.addUser(user2);
-        User user2DB = userService.findUserByUsername(user2.getUsername());
+        User dawid = new UserBuilder()
+                .withUsername("Dawcio")
+                .withName("Dawid")
+                .withSurname("Stefański")
+                .withEmail("dawcio.stefanski@gmail.com")
+                .withPassword("pass1234")
+                .withRoleAdmin()
+                .activated()
+                .create();
+        userService.addUser(dawid);
+        User user2DB = userService.findUserByUsername(dawid.getUsername());
 
-        User user3 = new User();
-        user3.setEmail("MJN@wp.pl");
-        user3.setName("Marcin");
-        user3.setUsername("janekm89");
-        user3.setPassword("password");
-        user3.setSurname("Jankiewicz");
-        user3.setRole("ADMIN");
-        user3.setActive(1);
-        userService.addUser(user3);
+        User krzysiek = new UserBuilder()
+                .withUsername("Krzysiek")
+                .withName("Krzysztof")
+                .withSurname("Szafrański")
+                .withEmail("krz.szafranski@gmail.com")
+                .withPassword("pass1234")
+                .withRoleAdmin()
+                .activated()
+                .create();
+        userService.addUser(krzysiek);
 
         Ingredient ingredient1 = new IngredientBuilder().withName("jablko")
                 .withUnit("pcs")
