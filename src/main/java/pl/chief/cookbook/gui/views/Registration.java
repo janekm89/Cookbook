@@ -15,14 +15,17 @@ import pl.chief.cookbook.builder.UserBuilder;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.gui.layout.MenuLayout;
 import pl.chief.cookbook.model.User;
+import pl.chief.cookbook.service.MailService;
 import pl.chief.cookbook.service.UserService;
 
+import javax.mail.MessagingException;
 
 
 @Route(Registration.ROUTE)
 public class Registration extends VerticalLayout {
     public final static String ROUTE = "register";
     private UserService userService;
+    private MailService mailService;
     private TextField usernameField;
     private TextField nameField;
     private TextField surnameField;
@@ -32,8 +35,9 @@ public class Registration extends VerticalLayout {
     private PasswordField passwordConfirmField;
 
     @Autowired
-    public Registration(UserService userService) {
+    public Registration(UserService userService, MailService mailService) {
         this.userService = userService;
+        this.mailService = mailService;
         AppLayout appLayout = new AppLayout();
         new MenuLayout(appLayout);
         VerticalLayout layoutContent = setRegisterLayoutContent();
@@ -71,7 +75,8 @@ public class Registration extends VerticalLayout {
                         .activated().create();
                 try {
                     userService.addUser(user);
-                } catch (EntityAlreadyExistException e) {
+                    mailService.sendMail(user.getEmail(), "link");
+                } catch (EntityAlreadyExistException | MessagingException e) {
                     e.printStackTrace();
                 }
                 UI.getCurrent().getPage().executeJavaScript("window.open(\"/login\", \"_self\")");
