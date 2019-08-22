@@ -8,9 +8,12 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import pl.chief.cookbook.gui.security.UserAccess;
 import pl.chief.cookbook.gui.views.LoginView;
 import pl.chief.cookbook.gui.views.RecipeBrowserView;
 import pl.chief.cookbook.gui.views.Registration;
+import pl.chief.cookbook.model.Ingredient;
+import pl.chief.cookbook.model.Recipe;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
@@ -33,21 +36,22 @@ public final class SecurityUtils {
     static boolean isUserLoggedIn() {
         return isUserLoggedIn(SecurityContextHolder.getContext().getAuthentication());
     }
+
     static boolean isUserLoggedIn(Authentication authentication) {
         return authentication != null
                 && !(authentication instanceof AnonymousAuthenticationToken);
     }
 
-    public static boolean isAccessGranted(Class<?> securedClass){
+    public static boolean isAccessGranted(Class<?> securedClass) {
         final boolean publicView = LoginView.class.equals(securedClass)
                 || RecipeBrowserView.class.equals(securedClass)
                 || Registration.class.equals(securedClass);
 
-        if(publicView)
+        if (publicView)
             return true;
 
         Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!isUserLoggedIn(userAuthentication)){
+        if (!isUserLoggedIn(userAuthentication)) {
             return false;
         }
         // Allow if no roles are required.
@@ -60,4 +64,18 @@ public final class SecurityUtils {
         return userAuthentication.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .anyMatch(allowedRoles::contains);
     }
+
+    public static boolean isEditingAllowed(Object entity) {
+        if (UserAccess.loggedUserRole().equals("ROLE_ADMIN"))
+            return true;
+        int entityUserId = 0;
+        if (entity instanceof Ingredient) {
+            entityUserId = ((Ingredient) entity).getUser_id();
+        }
+        if (entity instanceof Recipe) {
+            entityUserId = ((Recipe) entity).getUser_id();
+        }
+        return entityUserId == UserAccess.loggedUserId();
+    }
+
 }

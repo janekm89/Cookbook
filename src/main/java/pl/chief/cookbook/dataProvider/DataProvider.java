@@ -1,5 +1,7 @@
-package pl.chief.cookbook;
+package pl.chief.cookbook.dataProvider;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import pl.chief.cookbook.builder.IngredientBuilder;
 import pl.chief.cookbook.builder.RecipeBuilder;
 import pl.chief.cookbook.builder.UserBuilder;
@@ -16,18 +18,11 @@ import pl.chief.cookbook.service.RecipeService;
 import pl.chief.cookbook.service.UserService;
 
 //* this class is to be removed after implementing user
-//@Component
-public class TablesData {
-    private RecipeService recipeService;
-    private IngredientService ingredientService;
-    private UserService userService;
+@Component
+public class DataProvider {
 
-    //@Autowired
-    public TablesData(RecipeService recipeService, IngredientService ingredientService, UserService userService) throws EntityAlreadyExistException, NotNumberException {
-        this.recipeService = recipeService;
-        this.ingredientService = ingredientService;
-        this.userService = userService;
-
+    @Autowired
+    public DataProvider(RecipeService recipeService, IngredientService ingredientService, UserService userService) throws EntityAlreadyExistException, NotNumberException {
         User marcin = new UserBuilder()
                 .withUsername("janekm89")
                 .withName("Marcin")
@@ -63,6 +58,29 @@ public class TablesData {
                 .create();
         userService.addUser(krzysiek);
 
+        User user = new UserBuilder()
+                .withUsername("user")
+                .withName("User")
+                .withSurname("User")
+                .withEmail("user@gmail.com")
+                .withPassword("user123")
+                .withRoleUser()
+                .activated()
+                .create();
+        userService.addUser(user);
+        User user3DB = userService.findUserByUsername(user.getUsername());
+
+        User admin = new UserBuilder()
+                .withUsername("admin")
+                .withName("Admin")
+                .withSurname("Admin")
+                .withEmail("admin@gmail.com")
+                .withPassword("admin123")
+                .withRoleAdmin()
+                .activated()
+                .create();
+        userService.addUser(admin);
+
         Ingredient ingredient1 = new IngredientBuilder().withName("jablko")
                 .withUnit("pcs")
                 .withCategory(IngredientCategory.FRUITS)
@@ -96,6 +114,14 @@ public class TablesData {
         ingredientService.addIngredient(ingredient4);
         Ingredient ingredient4FromDB = ingredientService.findIngredientByName(ingredient4.getName());
 
+        Ingredient ingredient5 = new IngredientBuilder().withName("Truskawki")
+                .withUnit(MeasurementUnit.KILOGRAM)
+                .withCategory(IngredientCategory.FRUITS)
+                .withUserId(user3DB.getId())
+                .createIngredient();
+        ingredientService.addIngredient(ingredient5);
+        Ingredient ingredient5FromDB = ingredientService.findIngredientByName(ingredient5.getName());
+
         Recipe recipe1 = new RecipeBuilder().withName("Jablecznik")
                 .withCalories(200)
                 .withCategory(RecipeCategory.CAKE_DESSERT)
@@ -117,7 +143,6 @@ public class TablesData {
                 .createRecipe();
         recipeService.addRecipe(recipe2);
 
-
         Recipe recipe3 = new RecipeBuilder().withName("Popieprzone")
                 .withCalories(1)
                 .withCategory(RecipeCategory.VEGE)
@@ -126,5 +151,16 @@ public class TablesData {
                 .withUserId(user2DB.getId())
                 .createRecipe();
         recipeService.addRecipe(recipe3);
+
+        Recipe recipe4 = new RecipeBuilder().withName("Nalesniki z truskawkami")
+                .withCalories(450)
+                .withCategory(RecipeCategory.VEGE)
+                .withDescription("Usmazyc i dodac truskawki")
+                .withIngredientAmount(ingredient5FromDB.getId(), 11.0)
+                .withIngredientAmount(ingredient2FromDB.getId(), 0.5)
+                .withIngredientAmount(ingredient3FromDB.getId(), 0.1)
+                .withUserId(user3DB.getId())
+                .createRecipe();
+        recipeService.addRecipe(recipe4);
     }
 }

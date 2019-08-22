@@ -16,4 +16,9 @@ public class MiddleNotification extends Notification {
         this(message);
         this.setDuration(duration);
     }
+
+    public void showNotAllowed(){
+       this.setText("You are not allowed to perform this operation");
+       this.open();
+    }
 }

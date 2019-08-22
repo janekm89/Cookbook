@@ -20,6 +20,7 @@ import pl.chief.cookbook.gui.components.MiddleNotification;
 import pl.chief.cookbook.gui.layout.MenuLayout;
 import pl.chief.cookbook.gui.security.UserAccess;
 import pl.chief.cookbook.model.Ingredient;
+import pl.chief.cookbook.security.SecurityUtils;
 import pl.chief.cookbook.service.IngredientService;
 
 
@@ -32,11 +33,12 @@ public class IngredientManagerView extends VerticalLayout {
     private ComboBox<IngredientCategory> ingredientCategoryComboBox;
     private HorizontalLayout ingredientEditor;
     private IngredientService ingredientService;
+    private int loggedUserId;
 
     @Autowired
     IngredientManagerView(IngredientService ingredientService) {
         this.ingredientService = ingredientService;
-
+        this.loggedUserId = UserAccess.loggedUserId();
         AppLayout appLayout = new AppLayout();
         new MenuLayout(appLayout);
 
@@ -62,9 +64,13 @@ public class IngredientManagerView extends VerticalLayout {
         Button button = new Button("Remove");
         button.addClickListener(
                 buttonClickEvent -> {
-                    deleteIngredient(ingredient);
-                    MiddleNotification notification = new MiddleNotification("Ingredient successfully removed from database");
-                    notification.open();
+                    if (SecurityUtils.isEditingAllowed(ingredient)) {
+                        deleteIngredient(ingredient);
+                        MiddleNotification notification = new MiddleNotification("Ingredient successfully removed from database");
+                        notification.open();
+                    } else {
+                        new MiddleNotification().showNotAllowed();
+                    }
                 });
         return button;
     }
@@ -77,27 +83,29 @@ public class IngredientManagerView extends VerticalLayout {
 
     private Button buildEditButton(Ingredient ingredient) {
         Button button = new Button("Edit");
-
         button.addClickListener(
                 buttonClickEvent -> {
-                    Dialog dialog = new Dialog();
-                    dialog.open();
-                    TextField nameField = new TextField();
-                    nameField.setLabel("ingredient name");
-                    nameField.setValue(ingredient.getName());
+                    if (SecurityUtils.isEditingAllowed(ingredient)) {
+                        Dialog dialog = new Dialog();
+                        dialog.open();
+                        TextField nameField = new TextField();
+                        nameField.setLabel("ingredient name");
+                        nameField.setValue(ingredient.getName());
 
-                    ComboBox<MeasurementUnit> unitComboBox = new ComboBox<>("measurement unit");
-                    unitComboBox.setItems(MeasurementUnit.values());
-                    unitComboBox.setValue(ingredient.getUnit());
+                        ComboBox<MeasurementUnit> unitComboBox = new ComboBox<>("measurement unit");
+                        unitComboBox.setItems(MeasurementUnit.values());
+                        unitComboBox.setValue(ingredient.getUnit());
 
-                    ComboBox<IngredientCategory> ingredientCategoryComboBox = new ComboBox<>("ingredient category");
-                    ingredientCategoryComboBox.setItems(IngredientCategory.values());
-                    ingredientCategoryComboBox.setValue(ingredient.getIngredientCategory());
+                        ComboBox<IngredientCategory> ingredientCategoryComboBox = new ComboBox<>("ingredient category");
+                        ingredientCategoryComboBox.setItems(IngredientCategory.values());
+                        ingredientCategoryComboBox.setValue(ingredient.getIngredientCategory());
 
-                    Button confirmButton = buildEditButton(ingredient, nameField, unitComboBox, ingredientCategoryComboBox, dialog);
-                    Button cancelButton = buildCancelButton(dialog);
-                    dialog.add(nameField, unitComboBox, ingredientCategoryComboBox, confirmButton, cancelButton);
-
+                        Button confirmButton = buildEditConfirmationButton(ingredient, nameField, unitComboBox, ingredientCategoryComboBox, dialog);
+                        Button cancelButton = buildCancelButton(dialog);
+                        dialog.add(nameField, unitComboBox, ingredientCategoryComboBox, confirmButton, cancelButton);
+                    } else {
+                        new MiddleNotification().showNotAllowed();
+                    }
                 });
         return button;
     }
@@ -110,13 +118,13 @@ public class IngredientManagerView extends VerticalLayout {
         });
     }
 
-    private Button buildEditButton(Ingredient ingredient, TextField nameField, ComboBox<MeasurementUnit> unitComboBox, ComboBox<IngredientCategory> ingredientCategoryComboBox, Dialog dialog) {
+    private Button buildEditConfirmationButton(Ingredient ingredient, TextField nameField, ComboBox<MeasurementUnit> unitComboBox, ComboBox<IngredientCategory> ingredientCategoryComboBox, Dialog dialog) {
         return new Button("Edit ingredient", event -> {
 
             ingredient.setName(nameField.getValue());
             ingredient.setUnit(unitComboBox.getValue());
             ingredient.setIngredientCategory(ingredientCategoryComboBox.getValue());
-            ingredient.setUser_id(UserAccess.loggedUserId());
+            //ingredient.setUser_id(UserAccess.loggedUserId());
             editIngredient(ingredient);
             MiddleNotification notification = new MiddleNotification("Ingredient edited in database");
             notification.open();

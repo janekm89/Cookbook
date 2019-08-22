@@ -23,6 +23,7 @@ import pl.chief.cookbook.gui.components.MiddleNotification;
 import pl.chief.cookbook.gui.layout.MenuLayout;
 import pl.chief.cookbook.gui.layout.RecipeCreator;
 import pl.chief.cookbook.model.Recipe;
+import pl.chief.cookbook.security.SecurityUtils;
 import pl.chief.cookbook.service.IngredientService;
 import pl.chief.cookbook.service.RecipeService;
 
@@ -66,8 +67,12 @@ public class RecipeManagerView extends VerticalLayout {
         recipeGrid.addColumn(new ComponentRenderer<>(this::buildDeleteButton)).setHeader("remove");
         recipeGrid.addItemClickListener(click -> {
             Recipe recipe = click.getItem();
-            dialog = buildCreatorDialog(recipe);
-            dialog.open();
+            if (SecurityUtils.isEditingAllowed(recipe)) {
+                dialog = buildCreatorDialog(recipe);
+                dialog.open();
+            } else {
+                new MiddleNotification().showNotAllowed();
+            }
         });
         return recipeGrid;
     }
@@ -79,10 +84,14 @@ public class RecipeManagerView extends VerticalLayout {
     private Button buildDeleteButton(Recipe recipe) {
         Button button = new Button("remove");
         button.addClickListener(event -> {
-            recipeService.deleteRecipe(recipe);
-            reloadGrid();
-            Notification notification = new MiddleNotification("Recipe successfully removed from database");
-            notification.open();
+            if (SecurityUtils.isEditingAllowed(recipe)) {
+                recipeService.deleteRecipe(recipe);
+                reloadGrid();
+                Notification notification = new MiddleNotification("Recipe successfully removed from database");
+                notification.open();
+            } else {
+                new MiddleNotification().showNotAllowed();
+            }
         });
         return button;
     }
