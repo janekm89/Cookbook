@@ -52,6 +52,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/img/**").permitAll()
                 // Allow all flow internal requests.
                 .requestMatchers(SecurityUtils::isFrameworkInternalRequest).permitAll()
+                .requestMatchers(SecurityUtils::isConfirmationTokenTrial).permitAll()
 
                 // Allow all requests by logged in users.
                 .anyRequest().authenticated()

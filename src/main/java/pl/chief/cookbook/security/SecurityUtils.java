@@ -9,9 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import pl.chief.cookbook.gui.security.UserAccess;
-import pl.chief.cookbook.gui.views.LoginView;
-import pl.chief.cookbook.gui.views.RecipeBrowserView;
-import pl.chief.cookbook.gui.views.Registration;
+import pl.chief.cookbook.gui.views.*;
 import pl.chief.cookbook.model.Ingredient;
 import pl.chief.cookbook.model.Recipe;
 
@@ -32,6 +30,11 @@ public final class SecurityUtils {
                 && Stream.of(RequestType.values()).anyMatch(r -> r.getIdentifier().equals(parameterValue));
     }
 
+    static boolean isConfirmationTokenTrial(HttpServletRequest request) {
+        return request.getRequestURL().toString().contains(ConfirmationView.ROUTE)
+                || request.getRequestURL().toString().contains(Confirmation.ROUTE);
+    }
+
 
     static boolean isUserLoggedIn() {
         return isUserLoggedIn(SecurityContextHolder.getContext().getAuthentication());
@@ -45,7 +48,9 @@ public final class SecurityUtils {
     public static boolean isAccessGranted(Class<?> securedClass) {
         final boolean publicView = LoginView.class.equals(securedClass)
                 || RecipeBrowserView.class.equals(securedClass)
-                || Registration.class.equals(securedClass);
+                || Registration.class.equals(securedClass)
+                || ConfirmationView.class.equals(securedClass)
+                || Confirmation.class.equals(securedClass);
 
         if (publicView)
             return true;

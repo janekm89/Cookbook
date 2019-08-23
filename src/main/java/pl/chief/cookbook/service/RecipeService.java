@@ -39,7 +39,6 @@ public class RecipeService {
         existingRecipe.setCalories(recipe.getCalories());
         existingRecipe.setRecipeCategory(recipe.getRecipeCategory());
         existingRecipe.setDescription(recipe.getDescription());
-        //existingRecipe.setIngredients(recipe.getIngredients());
         existingRecipe.setIngredientsAmount(recipe.getIngredientsAmount());
         recipeRepository.save(existingRecipe);
         return true;

@@ -11,19 +11,22 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.web.context.request.WebRequest;
 import pl.chief.cookbook.builder.UserBuilder;
 import pl.chief.cookbook.exception.EntityAlreadyExistException;
 import pl.chief.cookbook.gui.layout.MenuLayout;
 import pl.chief.cookbook.model.User;
 import pl.chief.cookbook.service.MailService;
 import pl.chief.cookbook.service.UserService;
-
-import javax.mail.MessagingException;
+import pl.chief.cookbook.verification.OnRegistrationCompleteEvent;
 
 
 @Route(Registration.ROUTE)
 public class Registration extends VerticalLayout {
     public final static String ROUTE = "register";
+
+    private ApplicationEventPublisher eventPublisher;
     private UserService userService;
     private MailService mailService;
     private TextField usernameField;
@@ -35,12 +38,13 @@ public class Registration extends VerticalLayout {
     private PasswordField passwordConfirmField;
 
     @Autowired
-    public Registration(UserService userService, MailService mailService) {
+    public Registration(UserService userService, MailService mailService, ApplicationEventPublisher eventPublisher, WebRequest request) {
         this.userService = userService;
         this.mailService = mailService;
+        this.eventPublisher = eventPublisher;
         AppLayout appLayout = new AppLayout();
         new MenuLayout(appLayout);
-        VerticalLayout layoutContent = setRegisterLayoutContent();
+        VerticalLayout layoutContent = setRegisterLayoutContent(request);
 
 
         layoutContent.setAlignItems(Alignment.CENTER);
@@ -48,23 +52,23 @@ public class Registration extends VerticalLayout {
         add(appLayout);
     }
 
-    private VerticalLayout setRegisterLayoutContent() {
+    private VerticalLayout setRegisterLayoutContent(WebRequest request) {
         VerticalLayout verticalLayout = new VerticalLayout();
         setRegisterFields();
         verticalLayout.add(userNameLayout());
         verticalLayout.add(namesLayout());
         verticalLayout.add(emailLayout());
         verticalLayout.add(passwordLayout());
-        verticalLayout.add(registerButton());
+        verticalLayout.add(registerButton(request));
         return verticalLayout;
     }
 
-    private Button registerButton() {
+    private Button registerButton(WebRequest request) {
         Button button = new Button("Register");
         button.addClickShortcut(Key.ENTER);
         button.setAutofocus(true);
         button.addClickListener(click -> {
-            if(passwordField.getValue().equals(passwordConfirmField.getValue())
+            if (passwordField.getValue().equals(passwordConfirmField.getValue())
                     && emailField.getValue().equals(emailField.getValue())) {
                 User user = new UserBuilder().withUsername(usernameField.getValue())
                         .withName(nameField.getValue())
@@ -72,13 +76,15 @@ public class Registration extends VerticalLayout {
                         .withEmail(emailField.getValue())
                         .withPassword(passwordField.getValue())
                         .withRoleUser()
-                        .activated().create();
+                        .unactive().create();
                 try {
                     userService.addUser(user);
-                    mailService.sendMail(user.getEmail(), "link");
-                } catch (EntityAlreadyExistException | MessagingException e) {
+                } catch (EntityAlreadyExistException e) {
                     e.printStackTrace();
                 }
+                String appUrl = request.getContextPath();
+                eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, request.getLocale(), appUrl));
+
                 UI.getCurrent().getPage().executeJavaScript("window.open(\"/login\", \"_self\")");
             }
 

@@ -13,9 +13,10 @@ import pl.chief.cookbook.gui.layout.MenuLayout;
 import java.util.Collections;
 
 @Tag("sa-login-view")
-@Route("login")
+@Route(LoginView.ROUTE)
 @PageTitle("Login")
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
+    public final static String ROUTE = "login";
     private LoginForm loginForm = new LoginForm();
 
     public LoginView() {

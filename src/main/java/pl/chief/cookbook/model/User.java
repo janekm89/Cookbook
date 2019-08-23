@@ -77,7 +77,8 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        //TODO account activation after clicking on link in email received
-        return true;
+        if (active == 1)
+            return true;
+        else return false;
     }
 }

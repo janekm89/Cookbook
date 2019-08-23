@@ -33,12 +33,10 @@ public class IngredientManagerView extends VerticalLayout {
     private ComboBox<IngredientCategory> ingredientCategoryComboBox;
     private HorizontalLayout ingredientEditor;
     private IngredientService ingredientService;
-    private int loggedUserId;
 
     @Autowired
     IngredientManagerView(IngredientService ingredientService) {
         this.ingredientService = ingredientService;
-        this.loggedUserId = UserAccess.loggedUserId();
         AppLayout appLayout = new AppLayout();
         new MenuLayout(appLayout);
 
@@ -48,7 +46,6 @@ public class IngredientManagerView extends VerticalLayout {
 
         VerticalLayout layoutContent = new VerticalLayout();
         layoutContent.add(ingredientEditor, ingredientGrid);
-        layoutContent.setWidthFull();
         appLayout.setContent(layoutContent);
         add(appLayout);
     }

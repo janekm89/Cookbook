@@ -24,20 +24,20 @@ public class MenuLayout extends AppLayoutMenu {
         appLayout.setBranding(logo);
         AppLayoutMenu menu = appLayout.createMenu();
         AppLayoutMenuItem logout = new AppLayoutMenuItem(VaadinIcon.EXIT.create(), "logout");
+        logout.addMenuItemClickListener(menuItemClickEvent ->
+        {
+            SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
+            UI.getCurrent().getPage().reload();
+        });
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String name = authentication.getName();
         AppLayoutMenuItem userName = new AppLayoutMenuItem(VaadinIcon.USER.create(), name);
         userName.addMenuItemClickListener(menuItemClick -> {
             System.out.println(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if(principal instanceof User){
-                System.out.println(((User)principal).getSurname());
+            if (principal instanceof User) {
+                System.out.println(((User) principal).getSurname());
             }
-        });
-        logout.addMenuItemClickListener(menuItemClickEvent ->
-        {
-            SecurityContextHolder.getContext().getAuthentication().setAuthenticated(false);
-            UI.getCurrent().getPage().reload();
         });
         authorities = (Collection<SimpleGrantedAuthority>) SecurityContextHolder.getContext().getAuthentication().getAuthorities();
         if (authorities.contains(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))) {
