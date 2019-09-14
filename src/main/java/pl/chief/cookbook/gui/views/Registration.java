@@ -1,9 +1,12 @@
 package pl.chief.cookbook.gui.views;
 
+import com.flowingcode.vaadin.addons.ironicons.IronIcons;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.EmailField;
@@ -84,8 +87,8 @@ public class Registration extends VerticalLayout {
                 }
                 String appUrl = request.getContextPath();
                 eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user, request.getLocale(), appUrl));
-
-                UI.getCurrent().getPage().executeJavaScript("window.open(\"/login\", \"_self\")");
+                Dialog dialog = buildCreatorDialog();
+                dialog.open();
             }
 
         });
@@ -124,5 +127,25 @@ public class Registration extends VerticalLayout {
         HorizontalLayout horizontalLayout = new HorizontalLayout();
         horizontalLayout.add(passwordField, passwordConfirmField);
         return horizontalLayout;
+    }
+
+    private Dialog buildCreatorDialog() {
+        Dialog dialog = new Dialog();
+        VerticalLayout verticalLayout = new VerticalLayout();
+        Label label = new Label("Check you email for activation link");
+        verticalLayout.add(label, buildOKButton(dialog));
+        verticalLayout.setAlignItems(Alignment.CENTER);
+        dialog.add(verticalLayout);
+        return dialog;
+    }
+
+    private Button buildOKButton(Dialog dialog) {
+        Button button = new Button("OK");
+        button.setIcon(IronIcons.CANCEL.create());
+        button.addClickListener(click -> {
+            dialog.close();
+            UI.getCurrent().getPage().executeJavaScript("window.open(\"/login\", \"_self\")");
+        });
+        return button;
     }
 }

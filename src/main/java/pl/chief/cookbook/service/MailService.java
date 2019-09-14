@@ -13,7 +13,7 @@ public class MailService {
     private JavaMailSender javaMailSender;
 
     @Autowired
-    public MailService(JavaMailSender javaMailSender){
+    public MailService(JavaMailSender javaMailSender) {
         this.javaMailSender = javaMailSender;
     }
 
@@ -22,7 +22,9 @@ public class MailService {
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
         mimeMessageHelper.setTo(to);
         mimeMessageHelper.setSubject("Activation link from CookBook");
-        mimeMessageHelper.setText(activationLink, true);
+        mimeMessageHelper.setText("Welcome to CookBook, this is your activation link:<br>" +
+                activationLink +
+                "<br>If you didn't register on CookBook ignore this message", true);
         javaMailSender.send(mimeMessage);
     }
 }

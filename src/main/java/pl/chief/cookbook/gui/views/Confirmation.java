@@ -17,7 +17,6 @@ public class Confirmation extends Div implements HasUrlParameter<String> {
             event.forwardTo(LoginView.class);
         } else {
             Confirmation.token = message;
-            System.out.println(token);
             event.forwardTo(ConfirmationView.class);
         }
 
